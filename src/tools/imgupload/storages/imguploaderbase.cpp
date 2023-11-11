@@ -15,7 +15,6 @@
 #include <QClipboard>
 #include <QCursor>
 #include <QDesktopServices>
-#include <QDrag>
 #include <QGuiApplication>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -29,7 +28,6 @@
 #include <QTimer>
 #include <QUrlQuery>
 #include <QVBoxLayout>
-#include <iostream>
 
 #define CLOSE_TIMEOUT 25000
 
@@ -40,10 +38,10 @@ ImgUploaderBase::ImgUploaderBase(const QPixmap& capture, QWidget* parent)
     setWindowTitle(tr("Upload image"));
     setWindowIcon(QIcon(GlobalValues::iconPath()));
 
-    QRect position = frameGeometry();
     QScreen* screen = QGuiApplication::screenAt(QCursor::pos());
-    position.moveBottomRight(screen->availableGeometry().bottomRight());
-    move(position.topLeft());
+    QRect availableGeometry = screen->availableGeometry();
+    move((availableGeometry.bottomRight() - frameGeometry().bottomRight()) + QPoint(160, 140));
+
     setAttribute(Qt::WA_ShowWithoutActivating);
     setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::WindowSystemMenuHint);
 

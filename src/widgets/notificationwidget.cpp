@@ -34,7 +34,6 @@ NotificationWidget::NotificationWidget(QWidget* parent)
     setLayout(mainLayout);
 
     mainLayout->addWidget(m_content);
-    m_layout->addWidget(m_label, 0, Qt::AlignHCenter);
     m_content->setLayout(m_layout);
 }
 
