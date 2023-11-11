@@ -56,7 +56,9 @@ GeneralConf::GeneralConf(QWidget* parent)
     initAntialiasingPinZoom();
     initUploadHistoryMax();
     initUndoLimit();
-    initUploadClientSecret();
+    //initUploadClientSecret();
+    initServerTPU();
+    initUploadTokenTPU();
     initPredefinedColorPaletteLarge();
     initShowSelectionGeometry();
 
@@ -568,9 +570,62 @@ void GeneralConf::initUploadClientSecret()
     vboxLayout->addWidget(m_uploadClientKey);
 }
 
+
+void GeneralConf::initServerTPU()
+{
+    auto* box = new QGroupBox(tr("PrivateUploader Server"));
+    box->setFlat(true);
+    m_layout->addWidget(box);
+
+    auto* vboxLayout = new QVBoxLayout();
+    box->setLayout(vboxLayout);
+
+    m_serverTPU = new QLineEdit(this);
+    QString foreground = this->palette().windowText().color().name();
+    m_serverTPU->setStyleSheet(
+      QStringLiteral("color: %1").arg(foreground));
+    m_serverTPU->setText(ConfigHandler().serverTPU());
+    connect(m_serverTPU,
+            &QLineEdit::editingFinished,
+            this,
+            &GeneralConf::serverTPUEdited);
+    vboxLayout->addWidget(m_serverTPU);
+}
+
+void GeneralConf::initUploadTokenTPU()
+{
+    auto* box = new QGroupBox(tr("PrivateUploader API Key"));
+    box->setFlat(true);
+    m_layout->addWidget(box);
+
+    auto* vboxLayout = new QVBoxLayout();
+    box->setLayout(vboxLayout);
+
+    m_uploadToken = new QLineEdit(this);
+    QString foreground = this->palette().windowText().color().name();
+    m_uploadToken->setStyleSheet(
+      QStringLiteral("color: %1").arg(foreground));
+    m_uploadToken->setText(ConfigHandler().uploadTokenTPU());
+    connect(m_uploadToken,
+            &QLineEdit::editingFinished,
+            this,
+            &GeneralConf::uploadTokenTPUEdited);
+    vboxLayout->addWidget(m_uploadToken);
+}
+
 void GeneralConf::uploadClientKeyEdited()
 {
     ConfigHandler().setUploadClientSecret(m_uploadClientKey->text());
+}
+
+void GeneralConf::uploadTokenTPUEdited()
+{
+    ConfigHandler().setUploadTokenTPU(m_uploadToken->text());
+}
+
+void GeneralConf::serverTPUEdited()
+{
+    ConfigHandler().setServerTPU(m_serverTPU->text());
 }
 
 void GeneralConf::uploadHistoryMaxChanged(int max)

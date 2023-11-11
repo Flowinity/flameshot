@@ -29,7 +29,7 @@ ImgurUploader::ImgurUploader(const QPixmap& capture, QWidget* parent)
 
 void ImgurUploader::handleReply(QNetworkReply* reply)
 {
-    spinner()->deleteLater();
+    //spinner()->deleteLater();
     m_currentImageName.clear();
     if (reply->error() == QNetworkReply::NoError) {
         QJsonDocument response = QJsonDocument::fromJson(reply->readAll());

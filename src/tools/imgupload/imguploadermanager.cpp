@@ -8,7 +8,7 @@
 
 // TODO - remove this hard-code and create plugin manager in the future, you may
 // include other storage headers here
-#include "storages/imgur/imguruploader.h"
+#include "storages/privateuploader/privateuploader.h"
 
 ImgUploaderManager::ImgUploaderManager(QObject* parent)
   : QObject(parent)
@@ -29,8 +29,8 @@ void ImgUploaderManager::init()
     //    m_qstrUrl = "https://imgur.com/";
     //    m_imgUploaderPlugin = "imgur";
     //}
-    m_urlString = "https://imgur.com/";
-    m_imgUploaderPlugin = "imgur";
+    m_urlString = "https://privateuploader.com/";
+    m_imgUploaderPlugin = "privateuploader";
 }
 
 ImgUploaderBase* ImgUploaderManager::uploader(const QPixmap& capture,
@@ -45,7 +45,7 @@ ImgUploaderBase* ImgUploaderManager::uploader(const QPixmap& capture,
     //    m_imgUploaderBase =
     //      (ImgUploaderBase*)(new ImgurUploader(capture, parent));
     //}
-    m_imgUploaderBase = (ImgUploaderBase*)(new ImgurUploader(capture, parent));
+    m_imgUploaderBase = (ImgUploaderBase*)(new PrivateUploader(capture, parent));
     if (m_imgUploaderBase && !capture.isNull()) {
         m_imgUploaderBase->upload();
     }

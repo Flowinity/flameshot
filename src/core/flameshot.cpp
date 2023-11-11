@@ -334,6 +334,8 @@ void Flameshot::requestCapture(const CaptureRequest& request)
     }
 }
 
+static int openWindowCount = 0;
+
 void Flameshot::exportCapture(const QPixmap& capture,
                               QRect& selection,
                               const CaptureRequest& req)
@@ -390,6 +392,13 @@ void Flameshot::exportCapture(const QPixmap& capture,
         }
 
         ImgUploaderBase* widget = ImgUploaderManager().uploader(capture);
+
+        openWindowCount++;
+
+        QObject::connect(widget, &QObject::destroyed, [=]() {
+            openWindowCount--;
+        });
+
         widget->show();
         widget->activateWindow();
         // NOTE: lambda can't capture 'this' because it might be destroyed later
@@ -401,7 +410,7 @@ void Flameshot::exportCapture(const QPixmap& capture,
                       FlameshotDaemon::copyToClipboard(
                         url.toString(), tr("URL copied to clipboard."));
                   }
-                  widget->showPostUploadDialog();
+                  widget->showPostUploadDialog(openWindowCount);
               }
           });
     }

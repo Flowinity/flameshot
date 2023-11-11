@@ -29,6 +29,9 @@
 #include <QTimer>
 #include <QUrlQuery>
 #include <QVBoxLayout>
+#include <iostream>
+
+#define CLOSE_TIMEOUT 25000
 
 ImgUploaderBase::ImgUploaderBase(const QPixmap& capture, QWidget* parent)
   : QWidget(parent)
@@ -39,28 +42,42 @@ ImgUploaderBase::ImgUploaderBase(const QPixmap& capture, QWidget* parent)
 
     QRect position = frameGeometry();
     QScreen* screen = QGuiApplication::screenAt(QCursor::pos());
-    position.moveCenter(screen->availableGeometry().center());
+    position.moveBottomRight(screen->availableGeometry().bottomRight());
     move(position.topLeft());
-
-    m_spinner = new LoadSpinner(this);
-    m_spinner->setColor(ConfigHandler().uiColor());
-    m_spinner->start();
+    setAttribute(Qt::WA_ShowWithoutActivating);
+    setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::WindowSystemMenuHint);
 
     m_infoLabel = new QLabel(tr("Uploading Image"));
     m_infoLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
     m_infoLabel->setCursor(QCursor(Qt::IBeamCursor));
 
+    m_closeButton = new QPushButton(tr("X"));
+    m_closeButton->setFixedSize(20, 20);
+    m_closeButton->setCursor(QCursor(Qt::PointingHandCursor));
+    m_closeButton->setToolTip(tr("Close"));
+    m_closeButton->setStyleSheet("QPushButton {"
+                                 "border: none;"
+                                 "background-color: transparent;"
+                                 "color: white;"
+                                 "font-size: 16px;"
+                                 "float: right;"
+                                 "}");
+
+    connect(m_closeButton, &QPushButton::clicked, this, &QWidget::close);
+
+
+
     m_vLayout = new QVBoxLayout();
     setLayout(m_vLayout);
-    m_vLayout->addWidget(m_spinner, 0, Qt::AlignHCenter);
     m_vLayout->addWidget(m_infoLabel);
 
     setAttribute(Qt::WA_DeleteOnClose);
+    QTimer::singleShot(CLOSE_TIMEOUT, this, &QWidget::close);
 }
 
-LoadSpinner* ImgUploaderBase::spinner()
+void ImgUploaderBase::contextMenuEvent(QContextMenuEvent* event)
 {
-    return m_spinner;
+    QWidget::close();
 }
 
 const QUrl& ImgUploaderBase::imageURL()
@@ -95,44 +112,45 @@ void ImgUploaderBase::setInfoLabelText(const QString& text)
 
 void ImgUploaderBase::startDrag()
 {
-    auto* mimeData = new QMimeData;
-    mimeData->setUrls(QList<QUrl>{ m_imageURL });
-    mimeData->setImageData(m_pixmap);
-
-    auto* dragHandler = new QDrag(this);
-    dragHandler->setMimeData(mimeData);
-    dragHandler->setPixmap(m_pixmap.scaled(
-      256, 256, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
-    dragHandler->exec();
+    //
 }
 
-void ImgUploaderBase::showPostUploadDialog()
+#define WINDOW_HEIGHT 140
+
+void ImgUploaderBase::showPostUploadDialog(int open)
 {
+    int offset = (open - 1) * WINDOW_HEIGHT;
+    move(QPoint(x(), y() - offset));
+
     m_infoLabel->deleteLater();
 
     m_notification = new NotificationWidget();
     m_vLayout->addWidget(m_notification);
 
-    auto* imageLabel = new ImageLabel();
-    imageLabel->setScreenshot(m_pixmap);
-    imageLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    connect(imageLabel,
-            &ImageLabel::dragInitiated,
-            this,
-            &ImgUploaderBase::startDrag);
-    m_vLayout->addWidget(imageLabel);
+    QHBoxLayout* hLayoutLabel = new QHBoxLayout;
+
+    QLabel* label = new QLabel(m_imageURL.toString());
+    label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
+    hLayoutLabel->addWidget(label);
+
+
+    hLayoutLabel->addWidget(m_closeButton);
+
+    // Add the horizontal layout to the main vertical layout
+    m_vLayout->addLayout(hLayoutLabel);
 
     m_hLayout = new QHBoxLayout();
     m_vLayout->addLayout(m_hLayout);
 
     m_copyUrlButton = new QPushButton(tr("Copy URL"));
     m_openUrlButton = new QPushButton(tr("Open URL"));
-    m_openDeleteUrlButton = new QPushButton(tr("Delete image"));
-    m_toClipboardButton = new QPushButton(tr("Image to Clipboard."));
-    m_saveToFilesystemButton = new QPushButton(tr("Save image"));
+    //m_openDeleteUrlButton = new QPushButton(tr("Delete image"));
+    m_toClipboardButton = new QPushButton(tr("Copy Image"));
+    m_saveToFilesystemButton = new QPushButton(tr("Save Image"));
     m_hLayout->addWidget(m_copyUrlButton);
     m_hLayout->addWidget(m_openUrlButton);
-    m_hLayout->addWidget(m_openDeleteUrlButton);
+    //m_hLayout->addWidget(m_openDeleteUrlButton);
     m_hLayout->addWidget(m_toClipboardButton);
     m_hLayout->addWidget(m_saveToFilesystemButton);
 
@@ -140,10 +158,10 @@ void ImgUploaderBase::showPostUploadDialog()
       m_copyUrlButton, &QPushButton::clicked, this, &ImgUploaderBase::copyURL);
     connect(
       m_openUrlButton, &QPushButton::clicked, this, &ImgUploaderBase::openURL);
-    connect(m_openDeleteUrlButton,
+    /*connect(m_openDeleteUrlButton,
             &QPushButton::clicked,
             this,
-            &ImgUploaderBase::deleteCurrentImage);
+            &ImgUploaderBase::deleteCurrentImage);*/
     connect(m_toClipboardButton,
             &QPushButton::clicked,
             this,
@@ -153,6 +171,8 @@ void ImgUploaderBase::showPostUploadDialog()
                      &QPushButton::clicked,
                      this,
                      &ImgUploaderBase::saveScreenshotToFilesystem);
+
+    copyURL();
 }
 
 void ImgUploaderBase::openURL()
@@ -166,7 +186,7 @@ void ImgUploaderBase::openURL()
 void ImgUploaderBase::copyURL()
 {
     FlameshotDaemon::copyToClipboard(m_imageURL.toString());
-    m_notification->showMessage(tr("URL copied to clipboard."));
+    //m_notification->showMessage(tr("URL copied to clipboard."));
 }
 
 void ImgUploaderBase::copyImage()

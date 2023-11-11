@@ -40,15 +40,16 @@ signals:
     void deleteOk();
 
 public slots:
-    void showPostUploadDialog();
+    void showPostUploadDialog(int open);
 
 private slots:
     void startDrag();
-    void openURL();
     void copyURL();
+    void openURL();
     void copyImage();
     void deleteCurrentImage();
     void saveScreenshotToFilesystem();
+
 
 private:
     QPixmap m_pixmap;
@@ -64,8 +65,12 @@ private:
     QPushButton* m_copyUrlButton;
     QPushButton* m_toClipboardButton;
     QPushButton* m_saveToFilesystemButton;
+    QPushButton* m_closeButton;
     QUrl m_imageURL;
     NotificationWidget* m_notification;
+
+protected:
+    void contextMenuEvent(QContextMenuEvent* event) override;
 
 public:
     QString m_currentImageName;
