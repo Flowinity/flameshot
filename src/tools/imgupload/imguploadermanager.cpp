@@ -49,8 +49,11 @@ ImgUploaderBase* ImgUploaderManager::uploader(const QPixmap& capture,
     if (m_imgUploaderBase && !capture.isNull()) {
         m_imgUploaderBase->upload();
     }
+
     return m_imgUploaderBase;
 }
+
+
 
 ImgUploaderBase* ImgUploaderManager::uploader(const QString& imgUploaderPlugin)
 {

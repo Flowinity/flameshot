@@ -43,9 +43,10 @@ ImgUploaderBase::ImgUploaderBase(const QPixmap& capture, QWidget* parent)
     move((availableGeometry.bottomRight() - frameGeometry().bottomRight()) + QPoint(160, 140));
 
     setAttribute(Qt::WA_ShowWithoutActivating);
-    setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::WindowSystemMenuHint);
+    setWindowFlags(Qt::BypassWindowManagerHint | Qt::WindowStaysOnTopHint |
+                   Qt::FramelessWindowHint | Qt::WindowDoesNotAcceptFocus);
 
-    m_infoLabel = new QLabel(tr("Uploading Image"));
+    m_infoLabel = new QLabel(tr("Uploading image..."));
     m_infoLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
     m_infoLabel->setCursor(QCursor(Qt::IBeamCursor));
 

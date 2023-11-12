@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: 2017-2019 Alejandro Sirgo Rica & Contributors
 
 #include "privateuploader.h"
+#include "privateuploaderupload.h"
 #include "src/utils/confighandler.h"
 #include "src/utils/filenamehandler.h"
 #include "src/utils/history.h"
@@ -66,28 +67,9 @@ void PrivateUploader::upload()
     QBuffer buffer(&byteArray);
     pixmap().save(&buffer, "PNG");
 
-    QByteArray boundary = "BoUnDaRy";
-    QByteArray postData;
-
-    // Append the beginning of the form-data
-    postData.append("--" + boundary + "\r\n");
-    postData.append("Content-Disposition: form-data; name=\"attachment\"; filename=\"" + FileNameHandler().parsedPattern().toUtf8() + "\"\r\n");
-    postData.append("Content-Type: image/png\r\n");
-    postData.append("\r\n");
-
-    // Append the image data
-    postData.append(byteArray);
-    postData.append("\r\n");
-
-    // Append the end of the form-data
-    postData.append("--" + boundary + "--\r\n");
-
-    QUrl url(QStringLiteral("%1/api/v3/gallery").arg(ConfigHandler().serverTPU()));
-    QNetworkRequest request(url);
-    request.setRawHeader("Authorization", QStringLiteral("%1").arg(ConfigHandler().uploadTokenTPU()).toUtf8());
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "multipart/form-data; boundary=" + boundary);
-
-    QNetworkReply *reply = m_NetworkAM->post(request, postData);
+    PrivateUploaderUpload* uploader = new PrivateUploaderUpload(this);
+    connect(uploader, &PrivateUploaderUpload::uploadOk, this, &PrivateUploader::handleReply);
+    uploader->uploadBytes(byteArray, FileNameHandler().parsedPattern().toUtf8(), "image/png");
 }
 
 void PrivateUploader::deleteImage(const QString& fileName, const QString& deleteToken)

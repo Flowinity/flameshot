@@ -6,6 +6,7 @@
 #include "src/utils/globalvalues.h"
 #include <QApplication>
 #include <QTextStream>
+#include <iostream>
 
 CommandLineParser::CommandLineParser()
   : m_description(qApp->applicationName())
@@ -85,6 +86,7 @@ bool CommandLineParser::processArgs(const QStringList& args,
     bool ok = true;
     bool isValidArg = false;
     for (Node& n : actualNode->subNodes) {
+        if (n.argument.name() == "up") return true;
         if (n.argument.name() == argument) {
             actualNode = &n;
             isValidArg = true;

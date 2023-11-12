@@ -17,13 +17,12 @@ class PrivateUploader : public ImgUploaderBase
 public:
     explicit PrivateUploader(const QPixmap& capture, QWidget* parent = nullptr);
     void deleteImage(const QString& fileName, const QString& deleteToken);
+    void uploadBytes(const QByteArray& bytes);
 
 private slots:
     void handleReply(QNetworkReply* reply);
 
 private:
-    void upload();
-
-private:
     QNetworkAccessManager* m_NetworkAM;
+    void upload();
 };
