@@ -27,7 +27,10 @@ void FlameshotDBusAdapter::attachPin(const QByteArray& data)
     FlameshotDaemon::instance()->attachPin(data);
 }
 
-void FlameshotDBusAdapter::captureScreen() {
-    Flameshot::instance()->requestCapture(
-      CaptureRequest(CaptureRequest::GRAPHICAL_MODE));
+void FlameshotDBusAdapter::captureScreen(const QString& captureMode) {
+    int const captureModeInt = captureMode.toInt();
+    if(captureModeInt < 0 || captureModeInt > 3) {
+        return;
+    }
+    Flameshot::instance()->requestCapture(CaptureRequest::CaptureMode(captureModeInt));
 }
