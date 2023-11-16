@@ -29,7 +29,6 @@
 #include <QTimer>
 #include <QUrlQuery>
 #include <QVBoxLayout>
-#include <iostream>
 
 #define WINDOW_WIDTH 500
 #define WINDOW_HEIGHT 120
@@ -58,7 +57,7 @@ ImgUploaderBase::ImgUploaderBase(const QPixmap& capture, QWidget* parent)
     QRect totalResolution;
 
     for (QScreen *screen : screens) {
-        totalResolution = totalResolution.united(screen->geometry());\
+        totalResolution = totalResolution.united(screen->geometry());
     }
 
     setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
