@@ -113,7 +113,7 @@ void ImgUploaderBase::setPixmap(const QPixmap& pixmap)
 
 NotificationWidget* ImgUploaderBase::notification()
 {
-    return m_notification;
+    //
 }
 
 void ImgUploaderBase::setInfoLabelText(const QString& text)
@@ -152,9 +152,6 @@ void ImgUploaderBase::showPostUploadDialog(int open)
     }
 
     m_infoLabel->deleteLater();
-
-    m_notification = new NotificationWidget();
-    m_vLayout->addWidget(m_notification);
 
     QHBoxLayout* hLayoutLabel = new QHBoxLayout;
 
@@ -205,21 +202,16 @@ void ImgUploaderBase::showPostUploadDialog(int open)
 void ImgUploaderBase::openURL()
 {
     bool successful = QDesktopServices::openUrl(m_imageURL);
-    if (!successful) {
-        m_notification->showMessage(tr("Unable to open the URL."));
-    }
 }
 
 void ImgUploaderBase::copyURL()
 {
     FlameshotDaemon::copyToClipboard(m_imageURL.toString());
-    //m_notification->showMessage(tr("URL copied to clipboard."));
 }
 
 void ImgUploaderBase::copyImage()
 {
     FlameshotDaemon::copyToClipboard(m_pixmap);
-    m_notification->showMessage(tr("Screenshot copied to clipboard."));
 }
 
 void ImgUploaderBase::deleteCurrentImage()
@@ -232,9 +224,6 @@ void ImgUploaderBase::deleteCurrentImage()
 void ImgUploaderBase::saveScreenshotToFilesystem()
 {
     if (!saveToFilesystemGUI(m_pixmap)) {
-        m_notification->showMessage(
-          tr("Unable to save the screenshot to disk."));
         return;
     }
-    m_notification->showMessage(tr("Screenshot saved."));
 }

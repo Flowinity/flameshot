@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: 2017-2019 Alejandro Sirgo Rica & Contributors
 #include "generalconf.h"
+#include "imgupload/imguploadermanager.h"
+#include "imgupload/storages/imguploaderbase.h"
 #include "src/core/flameshot.h"
 #include "src/utils/confighandler.h"
 #include <QCheckBox>
@@ -162,6 +164,8 @@ void GeneralConf::autostartChanged(bool checked)
 {
     ConfigHandler().setStartupLaunch(checked);
 }
+
+static int openWindowCount = 0;
 
 void GeneralConf::importConfiguration()
 {
@@ -702,6 +706,21 @@ void GeneralConf::initWindowOffsets() {
         m_uploadWindowStackPadding->setValue(25);
     });
 
+    auto* testButton = new QPushButton(tr("Test Window"), this);
+
+    connect(testButton, &QPushButton::clicked, this, []() {
+        ImgUploaderBase* widget = ImgUploaderManager().uploader(nullptr);
+
+        openWindowCount++;
+
+        QObject::connect(widget, &QObject::destroyed, [=]() {
+            openWindowCount--;
+        });
+
+        widget->showPreUploadDialog(openWindowCount);
+        widget->showPostUploadDialog(openWindowCount);
+    });
+
     vboxLayout->addWidget(m_uploadWindowEnabled);
     vboxLayout->addWidget(uploadWindowEnabledWarning);
     vboxLayout->addLayout(posY);
@@ -709,6 +728,7 @@ void GeneralConf::initWindowOffsets() {
     vboxLayout->addLayout(timeout);
     vboxLayout->addLayout(stackPadding);
     vboxLayout->addWidget(resetButton);
+    vboxLayout->addWidget(testButton);
 }
 
 void GeneralConf::uploadClientKeyEdited()
