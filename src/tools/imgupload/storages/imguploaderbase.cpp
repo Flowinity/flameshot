@@ -12,7 +12,6 @@
 #include "src/widgets/notificationwidget.h"
 #include <QApplication>
 #include <QStyle>
-#import <QDesktopWidget>
 // FIXME #include <QBuffer>
 #include <QClipboard>
 #include <QCursor>
