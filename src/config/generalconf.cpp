@@ -49,6 +49,7 @@ GeneralConf::GeneralConf(QWidget* parent)
     initUseJpgForClipboard();
     initCopyOnDoubleClick();
     initSaveAfterCopy();
+    initWindowOffsets();
     initCopyPathAfterSave();
     initCopyAndCloseAfterUpload();
     initUploadWithoutConfirmation();
@@ -613,6 +614,96 @@ void GeneralConf::initUploadTokenTPU()
     vboxLayout->addWidget(m_uploadToken);
 }
 
+void GeneralConf::initWindowOffsets() {
+    auto* box = new QGroupBox(tr("Upload Notification Settings"));
+
+    box->setFlat(true);
+    m_scrollAreaLayout->addWidget(box);
+
+    auto* vboxLayout = new QVBoxLayout();
+    box->setLayout(vboxLayout);
+
+    m_uploadWindowEnabled = new QCheckBox(tr("Enable Upload Notification"), this);
+    m_uploadWindowEnabled->setChecked(ConfigHandler().uploadWindowEnabled());
+    auto* uploadWindowEnabledWarning = new QLabel(tr("WAYLAND USERS: This upload notification window does not currently function correctly under Wayland. Please disable if you experience problems and use Wayland."), this);
+    uploadWindowEnabledWarning->setWordWrap(true);
+
+    auto* posYLabel = new QLabel(tr("Position Offset Y (px)"), this);
+    m_uploadWindowOffsetY = new QSpinBox(this);
+    m_uploadWindowOffsetY->setMinimum(-99999);
+    m_uploadWindowOffsetY->setMaximum(99999);
+    m_uploadWindowOffsetY->setValue(ConfigHandler().uploadWindowOffsetY());
+
+    auto* posXLabel = new QLabel(tr("Position Offset X (px)"), this);
+    m_uploadWindowOffsetX = new QSpinBox(this);
+    m_uploadWindowOffsetX->setMinimum(-99999);
+    m_uploadWindowOffsetX->setMaximum(99999);
+    m_uploadWindowOffsetX->setValue(ConfigHandler().uploadWindowOffsetX());
+
+    QString foreground = this->palette().windowText().color().name();
+    m_uploadWindowOffsetY->setStyleSheet(QStringLiteral("color: %1").arg(foreground));
+    m_uploadWindowOffsetX->setStyleSheet(QStringLiteral("color: %1").arg(foreground));
+
+    auto* timeoutLabel = new QLabel(tr("Timeout (ms)"), this);
+    m_uploadWindowTimeout = new QSpinBox(this);
+    m_uploadWindowTimeout->setMinimum(0);
+    m_uploadWindowTimeout->setMaximum(99999999);
+    m_uploadWindowTimeout->setValue(ConfigHandler().uploadWindowTimeout());
+
+    auto* stackPaddingLabel = new QLabel(tr("Window Stack Padding (px)"), this);
+
+    m_uploadWindowStackPadding = new QSpinBox(this);
+    m_uploadWindowStackPadding->setMinimum(0);
+    m_uploadWindowStackPadding->setMaximum(99999);
+    m_uploadWindowStackPadding->setValue(ConfigHandler().uploadWindowStackPadding());
+
+    connect(m_uploadWindowOffsetY,
+            static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this,
+            &GeneralConf::uploadWindowOffsetYEdited);
+
+    connect(m_uploadWindowOffsetX,
+            static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this,
+            &GeneralConf::uploadWindowOffsetXEdited);
+
+    connect(m_uploadWindowTimeout,
+            static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this,
+            &GeneralConf::uploadWindowTimeoutEdited);
+
+    connect(m_uploadWindowStackPadding,
+            static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this,
+            &GeneralConf::uploadWindowStackPaddingEdited);
+
+    connect(m_uploadWindowEnabled,
+            &QCheckBox::clicked,
+            this,
+            &GeneralConf::uploadWindowEnabledEdited);
+
+    // reset button
+    auto* resetButton = new QPushButton(tr("Reset Window Options"), this);
+    connect(resetButton, &QPushButton::clicked, this, [this]() {
+        m_uploadWindowOffsetY->setValue(100);
+        m_uploadWindowOffsetX->setValue(10);
+        m_uploadWindowTimeout->setValue(25000);
+        m_uploadWindowStackPadding->setValue(25);
+    });
+
+    vboxLayout->addWidget(m_uploadWindowEnabled);
+    vboxLayout->addWidget(uploadWindowEnabledWarning);
+    vboxLayout->addWidget(posYLabel);
+    vboxLayout->addWidget(m_uploadWindowOffsetY);
+    vboxLayout->addWidget(posXLabel);
+    vboxLayout->addWidget(m_uploadWindowOffsetX);
+    vboxLayout->addWidget(timeoutLabel);
+    vboxLayout->addWidget(m_uploadWindowTimeout);
+    vboxLayout->addWidget(stackPaddingLabel);
+    vboxLayout->addWidget(m_uploadWindowStackPadding);
+    vboxLayout->addWidget(resetButton);
+}
+
 void GeneralConf::uploadClientKeyEdited()
 {
     ConfigHandler().setUploadClientSecret(m_uploadClientKey->text());
@@ -626,6 +717,31 @@ void GeneralConf::uploadTokenTPUEdited()
 void GeneralConf::serverTPUEdited()
 {
     ConfigHandler().setServerTPU(m_serverTPU->text());
+}
+
+void GeneralConf::uploadWindowOffsetYEdited()
+{
+    ConfigHandler().setUploadWindowOffsetY(m_uploadWindowOffsetY->text().toInt());
+}
+
+void GeneralConf::uploadWindowOffsetXEdited()
+{
+    ConfigHandler().setUploadWindowOffsetX(m_uploadWindowOffsetX->text().toInt());
+}
+
+void GeneralConf::uploadWindowTimeoutEdited()
+{
+    ConfigHandler().setUploadWindowTimeout(m_uploadWindowTimeout->text().toInt());
+}
+
+void GeneralConf::uploadWindowStackPaddingEdited()
+{
+    ConfigHandler().setUploadWindowStackPadding(m_uploadWindowStackPadding->text().toInt());
+}
+
+void GeneralConf::uploadWindowEnabledEdited(bool checked)
+{
+    ConfigHandler().setUploadWindowEnabled(checked);
 }
 
 void GeneralConf::uploadHistoryMaxChanged(int max)

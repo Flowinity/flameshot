@@ -14,6 +14,12 @@
 #include <QDBusMessage>
 #include <QPixmap>
 #include <QRect>
+#include <KF5/KGuiAddons/KSystemClipboard>
+
+#if USE_WAYLAND_CLIPBOARD
+#include <KSystemClipboard>
+#include <QMimeData>
+#endif
 
 #if !defined(DISABLE_UPDATE_CHECKER)
 #include <QDesktopServices>
@@ -313,14 +319,22 @@ void FlameshotDaemon::attachTextToClipboard(const QString& text,
     }
 
     m_hostingClipboard = true;
+
+   #ifdef USE_WAYLAND_CLIPBOARD
+    auto* mimeData = new QMimeData();
+    mimeData->setText(text);
+    KSystemClipboard::instance()->setMimeData(mimeData,
+      QClipboard::Clipboard);
+  #else
     QClipboard* clipboard = QApplication::clipboard();
 
-    clipboard->blockSignals(true);
-    // This variable is necessary because the signal doesn't get blocked on
-    // windows for some reason
-    m_clipboardSignalBlocked = true;
-    clipboard->setText(text);
-    clipboard->blockSignals(false);
+      clipboard->blockSignals(true);
+      // This variable is necessary because the signal doesn't get blocked on
+      // windows for some reason
+      m_clipboardSignalBlocked = true;
+      clipboard->setText(text);
+      clipboard->blockSignals(false);
+  #endif
 }
 
 void FlameshotDaemon::initTrayIcon()

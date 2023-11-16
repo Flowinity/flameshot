@@ -399,8 +399,10 @@ void Flameshot::exportCapture(const QPixmap& capture,
             openWindowCount--;
         });
 
-        widget->show();
-        widget->activateWindow();
+        if(ConfigHandler().uploadWindowEnabled()) {
+            widget->show();
+        }
+
         // NOTE: lambda can't capture 'this' because it might be destroyed later
         CR::ExportTask tasks = tasks;
         QObject::connect(
@@ -408,7 +410,7 @@ void Flameshot::exportCapture(const QPixmap& capture,
               if (ConfigHandler().copyURLAfterUpload()) {
                   if (!(tasks & CR::COPY)) {
                       FlameshotDaemon::copyToClipboard(
-                        url.toString(), tr("URL copied to clipboard."));
+                        url.toString(), url.toString());
                   }
                   widget->showPostUploadDialog(openWindowCount);
               }

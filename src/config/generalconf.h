@@ -125,6 +125,11 @@ private:
     QCheckBox* m_saveAfterCopy;
     QLineEdit* m_savePath;
     QLineEdit* m_uploadClientKey;
+    QSpinBox* m_uploadWindowOffsetY;
+    QSpinBox* m_uploadWindowOffsetX;
+    QSpinBox* m_uploadWindowTimeout;
+    QSpinBox* m_uploadWindowStackPadding;
+    QCheckBox* m_uploadWindowEnabled;
     QLineEdit* m_uploadToken;
     QLineEdit* m_serverTPU;
     QPushButton* m_changeSaveButton;
@@ -142,4 +147,10 @@ private:
     QComboBox* m_selectGeometryLocation;
     QSpinBox* m_xywhTimeout;
     QSpinBox* m_jpegQuality;
+    void uploadWindowOffsetYEdited();
+    void uploadWindowOffsetXEdited();
+    void initWindowOffsets();
+    void uploadWindowTimeoutEdited();
+    void uploadWindowStackPaddingEdited();
+    void uploadWindowEnabledEdited(bool checked);
 };

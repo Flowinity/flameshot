@@ -125,6 +125,11 @@ static QMap<class QString, QSharedPointer<ValueHandler>>
     OPTION("uploadClientSecret"          ,String             ( "313baf0c7b4d3ff"            )),
     OPTION("uploadTokenTPU"              ,String             ( "")),
     OPTION("serverTPU"                   ,String             ( "https://privateuploader.com")),
+    OPTION("uploadWindowTimeout"         ,LowerBoundedInt (0, 25000)),
+    OPTION("uploadWindowOffsetY"         ,LowerBoundedInt (-99999, 100)),
+    OPTION("uploadWindowOffsetX"         ,LowerBoundedInt (-99999, 10)),
+    OPTION("uploadWindowStackPadding"    ,LowerBoundedInt (0, 25)),
+    OPTION("uploadWindowEnabled"         ,Bool               ( true          )),
     OPTION("showSelectionGeometry"  , BoundedInt               (0,5,4)),
     OPTION("showSelectionGeometryHideTime", LowerBoundedInt       (0, 3000)),
     OPTION("jpegQuality", BoundedInt     (0,100,75))
@@ -143,9 +148,9 @@ static QMap<QString, QSharedPointer<KeySequence>> recognizedShortcuts = {
     SHORTCUT("TYPE_UNDO"                ,   "Ctrl+Z"                ),
     SHORTCUT("TYPE_COPY"                ,   "Ctrl+C"                ),
     SHORTCUT("TYPE_SAVE"                ,   "Ctrl+S"                ),
-    SHORTCUT("TYPE_ACCEPT"              ,   "Return"                ),
+    SHORTCUT("TYPE_ACCEPT"              ,                           ),
     SHORTCUT("TYPE_EXIT"                ,   "Ctrl+Q"                ),
-    SHORTCUT("TYPE_IMAGEUPLOADER"       ,                           ),
+    SHORTCUT("TYPE_IMAGEUPLOADER"       ,   "Return"                ),
 #if !defined(Q_OS_MACOS)
     SHORTCUT("TYPE_OPEN_APP"            ,   "Ctrl+O"                ),
 #endif

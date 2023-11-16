@@ -11,6 +11,8 @@
 #include "src/widgets/loadspinner.h"
 #include "src/widgets/notificationwidget.h"
 #include <QApplication>
+#include <QStyle>
+#import <QDesktopWidget>
 // FIXME #include <QBuffer>
 #include <QClipboard>
 #include <QCursor>
@@ -28,27 +30,41 @@
 #include <QTimer>
 #include <QUrlQuery>
 #include <QVBoxLayout>
+#include <iostream>
 
-#define CLOSE_TIMEOUT 25000
+#define WINDOW_WIDTH 500
+#define WINDOW_HEIGHT 120
 
 ImgUploaderBase::ImgUploaderBase(const QPixmap& capture, QWidget* parent)
   : QWidget(parent)
   , m_pixmap(capture)
 {
+    FlameshotDaemon::copyToClipboard("");
+    if(!ConfigHandler().uploadWindowEnabled()) {
+        return;
+    }
     setWindowTitle(tr("Upload image"));
     setWindowIcon(QIcon(GlobalValues::iconPath()));
 
-    QScreen* screen = QGuiApplication::screenAt(QCursor::pos());
-    QRect availableGeometry = screen->availableGeometry();
-    move((availableGeometry.bottomRight() - frameGeometry().bottomRight()) + QPoint(160, 140));
-
     setAttribute(Qt::WA_ShowWithoutActivating);
     setWindowFlags(Qt::BypassWindowManagerHint | Qt::WindowStaysOnTopHint |
-                   Qt::FramelessWindowHint | Qt::WindowDoesNotAcceptFocus);
+                   Qt::FramelessWindowHint | Qt::WindowDoesNotAcceptFocus | Qt::Tool);
 
     m_infoLabel = new QLabel(tr("Uploading image..."));
     m_infoLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
     m_infoLabel->setCursor(QCursor(Qt::IBeamCursor));
+
+    //get screens
+    QList<QScreen*> screens = QGuiApplication::screens();
+    QRect totalResolution;
+
+    for (QScreen *screen : screens) {
+        totalResolution = totalResolution.united(screen->geometry());\
+    }
+
+    setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+    move(totalResolution.bottomRight().x() - WINDOW_WIDTH - ConfigHandler().uploadWindowOffsetX(), totalResolution.bottomRight().y() - WINDOW_HEIGHT - ConfigHandler().uploadWindowOffsetY());
+    show();
 
     m_closeButton = new QPushButton(tr("X"));
     m_closeButton->setFixedSize(20, 20);
@@ -64,14 +80,12 @@ ImgUploaderBase::ImgUploaderBase(const QPixmap& capture, QWidget* parent)
 
     connect(m_closeButton, &QPushButton::clicked, this, &QWidget::close);
 
-
-
     m_vLayout = new QVBoxLayout();
     setLayout(m_vLayout);
     m_vLayout->addWidget(m_infoLabel);
 
     setAttribute(Qt::WA_DeleteOnClose);
-    QTimer::singleShot(CLOSE_TIMEOUT, this, &QWidget::close);
+    QTimer::singleShot(ConfigHandler().uploadWindowTimeout(), this, &QWidget::close);
 }
 
 void ImgUploaderBase::contextMenuEvent(QContextMenuEvent* event)
@@ -114,12 +128,15 @@ void ImgUploaderBase::startDrag()
     //
 }
 
-#define WINDOW_HEIGHT 140
-
 void ImgUploaderBase::showPostUploadDialog(int open)
 {
-    int offset = (open - 1) * WINDOW_HEIGHT;
+    copyURL();
+    if(!ConfigHandler().uploadWindowEnabled()) {
+        return;
+    }
+    int offset = (open - 1) * (WINDOW_HEIGHT + ConfigHandler().uploadWindowStackPadding());
     move(QPoint(x(), y() - offset));
+
 
     m_infoLabel->deleteLater();
 
@@ -170,8 +187,6 @@ void ImgUploaderBase::showPostUploadDialog(int open)
                      &QPushButton::clicked,
                      this,
                      &ImgUploaderBase::saveScreenshotToFilesystem);
-
-    copyURL();
 }
 
 void ImgUploaderBase::openURL()
