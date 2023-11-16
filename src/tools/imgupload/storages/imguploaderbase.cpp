@@ -128,15 +128,21 @@ void ImgUploaderBase::startDrag()
     //
 }
 
+void ImgUploaderBase::showPreUploadDialog(int open) {
+    if(!ConfigHandler().uploadWindowEnabled()) {
+        return;
+    }
+    int padding = open - 1 == 0 ? 0 : ConfigHandler().uploadWindowStackPadding();
+    int offset = (open - 1) * (WINDOW_HEIGHT + padding);
+    move(QPoint(x(), y() - offset));
+}
+
 void ImgUploaderBase::showPostUploadDialog(int open)
 {
     copyURL();
     if(!ConfigHandler().uploadWindowEnabled()) {
         return;
     }
-    int offset = (open - 1) * (WINDOW_HEIGHT + ConfigHandler().uploadWindowStackPadding());
-    move(QPoint(x(), y() - offset));
-
 
     m_infoLabel->deleteLater();
 

@@ -41,6 +41,7 @@ signals:
 
 public slots:
     void showPostUploadDialog(int open);
+    void showPreUploadDialog(int open);
 
 private slots:
     void startDrag();

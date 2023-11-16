@@ -405,6 +405,7 @@ void Flameshot::exportCapture(const QPixmap& capture,
 
         // NOTE: lambda can't capture 'this' because it might be destroyed later
         CR::ExportTask tasks = tasks;
+        widget->showPreUploadDialog(openWindowCount);
         QObject::connect(
           widget, &ImgUploaderBase::uploadOk, [=](const QUrl& url) {
               if (ConfigHandler().copyURLAfterUpload()) {
