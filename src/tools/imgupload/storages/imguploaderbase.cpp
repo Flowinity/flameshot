@@ -9,7 +9,6 @@
 #include "src/utils/screenshotsaver.h"
 #include "src/widgets/imagelabel.h"
 #include "src/widgets/loadspinner.h"
-#include "src/widgets/notificationwidget.h"
 #include <QApplication>
 #include <QStyle>
 // FIXME #include <QBuffer>
@@ -109,11 +108,6 @@ const QPixmap& ImgUploaderBase::pixmap()
 void ImgUploaderBase::setPixmap(const QPixmap& pixmap)
 {
     m_pixmap = pixmap;
-}
-
-NotificationWidget* ImgUploaderBase::notification()
-{
-    //
 }
 
 void ImgUploaderBase::setInfoLabelText(const QString& text)

@@ -30,7 +30,6 @@ public:
     void setPixmap(const QPixmap&);
     void setInfoLabelText(const QString&);
 
-    NotificationWidget* notification();
     virtual void deleteImage(const QString& fileName,
                              const QString& deleteToken) = 0;
     virtual void upload() = 0;

@@ -89,9 +89,6 @@ void ImgurUploader::deleteImage(const QString& fileName,
     Q_UNUSED(fileName)
     bool successful = QDesktopServices::openUrl(
       QUrl(QStringLiteral("https://imgur.com/delete/%1").arg(deleteToken)));
-    if (!successful) {
-        notification()->showMessage(tr("Unable to open the URL."));
-    }
 
     emit deleteOk();
 }
