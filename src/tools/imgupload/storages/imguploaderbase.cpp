@@ -30,7 +30,7 @@
 #include <QUrlQuery>
 #include <QVBoxLayout>
 
-#define WINDOW_WIDTH 500
+#define WINDOW_WIDTH 440
 #define WINDOW_HEIGHT 120
 
 ImgUploaderBase::ImgUploaderBase(const QPixmap& capture, QWidget* parent)
