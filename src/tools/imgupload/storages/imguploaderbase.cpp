@@ -135,6 +135,15 @@ void ImgUploaderBase::showPreUploadDialog(int open) {
     move(QPoint(x(), y() - offset));
 }
 
+void ImgUploaderBase::updateProgress(int percentage)
+{
+    if(!m_infoLabel) {
+        return;
+    }
+
+    m_infoLabel->setText(tr("Uploading image... %1%").arg(percentage));
+}
+
 void ImgUploaderBase::showPostUploadDialog(int open)
 {
     copyURL();

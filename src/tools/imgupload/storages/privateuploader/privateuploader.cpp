@@ -73,6 +73,8 @@ void PrivateUploader::upload()
                                 ? FileNameHandler().parsedPattern()
                                 : FileNameHandler().parsedPattern() + ".png";
     uploader->uploadBytes(byteArray, fileName, "image/png");
+
+    connect(uploader, &PrivateUploaderUpload::uploadProgress, this, &PrivateUploader::updateProgress);
 }
 
 void PrivateUploader::deleteImage(const QString& fileName, const QString& deleteToken)

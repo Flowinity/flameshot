@@ -13,7 +13,6 @@
 #include "src/config/configwindow.h"
 #include "src/core/qguiappcurrentscreen.h"
 #include "src/tools/imgupload/imguploadermanager.h"
-#include "src/tools/imgupload/storages/imguploaderbase.h"
 #include "src/utils/confighandler.h"
 #include "src/utils/screengrabber.h"
 #include "src/widgets/capture/capturewidget.h"
@@ -416,6 +415,11 @@ void Flameshot::exportCapture(const QPixmap& capture,
                   widget->showPostUploadDialog(openWindowCount);
               }
           });
+
+        QObject::connect(
+                widget, &ImgUploaderBase::uploadProgress, [=](int progress) {
+                    widget->updateProgress(progress);
+                });
     }
 
     if (!(tasks & CR::UPLOAD)) {

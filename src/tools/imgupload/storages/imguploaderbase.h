@@ -38,10 +38,12 @@ public:
 signals:
     void uploadOk(const QUrl& url);
     void deleteOk();
+    void uploadProgress(int progress);
 
 public slots:
     void showPostUploadDialog(int open);
     void showPreUploadDialog(int open);
+    void updateProgress(int percentage);
 
 private slots:
     void startDrag();
