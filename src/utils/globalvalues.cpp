@@ -12,7 +12,8 @@ int GlobalValues::buttonBaseSize()
 
 QString GlobalValues::versionInfo()
 {
-    return QStringLiteral("Flameshot " APP_VERSION " (" FLAMESHOT_GIT_HASH ")" "\n(PrivateUploader fork v3)"
+    return QStringLiteral("Flameshot " APP_VERSION " (" FLAMESHOT_GIT_HASH ")"
+                          "\n(PrivateUploader fork v3)"
                           "\nCompiled with Qt " QT_VERSION_STR);
 }
 

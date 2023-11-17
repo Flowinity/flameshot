@@ -52,7 +52,6 @@ private slots:
     void deleteCurrentImage();
     void saveScreenshotToFilesystem();
 
-
 private:
     QPixmap m_pixmap;
 

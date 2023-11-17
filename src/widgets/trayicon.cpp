@@ -70,7 +70,9 @@ TrayIcon::TrayIcon(QObject* parent)
           "Flameshot",
           QObject::tr(
             "Hello, I'm here! Click icon in the tray to take a screenshot or "
-            "click with a right button to see more options.\nIf you have a PrivateUploader account, you can configure your API key via the configuration dialog."),
+            "click with a right button to see more options.\nIf you have a "
+            "PrivateUploader account, you can configure your API key via the "
+            "configuration dialog."),
           icon,
           3000);
     }

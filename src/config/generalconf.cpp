@@ -59,7 +59,7 @@ GeneralConf::GeneralConf(QWidget* parent)
     initAntialiasingPinZoom();
     initUploadHistoryMax();
     initUndoLimit();
-    //initUploadClientSecret();
+    // initUploadClientSecret();
     initServerTPU();
     initUploadTokenTPU();
     initPredefinedColorPaletteLarge();
@@ -575,7 +575,6 @@ void GeneralConf::initUploadClientSecret()
     vboxLayout->addWidget(m_uploadClientKey);
 }
 
-
 void GeneralConf::initServerTPU()
 {
     auto* box = new QGroupBox(tr("PrivateUploader Server"));
@@ -587,8 +586,7 @@ void GeneralConf::initServerTPU()
 
     m_serverTPU = new QLineEdit(this);
     QString foreground = this->palette().windowText().color().name();
-    m_serverTPU->setStyleSheet(
-      QStringLiteral("color: %1").arg(foreground));
+    m_serverTPU->setStyleSheet(QStringLiteral("color: %1").arg(foreground));
     m_serverTPU->setText(ConfigHandler().serverTPU());
     connect(m_serverTPU,
             &QLineEdit::editingFinished,
@@ -608,8 +606,7 @@ void GeneralConf::initUploadTokenTPU()
 
     m_uploadToken = new QLineEdit(this);
     QString foreground = this->palette().windowText().color().name();
-    m_uploadToken->setStyleSheet(
-      QStringLiteral("color: %1").arg(foreground));
+    m_uploadToken->setStyleSheet(QStringLiteral("color: %1").arg(foreground));
     m_uploadToken->setText(ConfigHandler().uploadTokenTPU());
     connect(m_uploadToken,
             &QLineEdit::editingFinished,
@@ -618,7 +615,8 @@ void GeneralConf::initUploadTokenTPU()
     vboxLayout->addWidget(m_uploadToken);
 }
 
-void GeneralConf::initWindowOffsets() {
+void GeneralConf::initWindowOffsets()
+{
     auto* box = new QGroupBox(tr("Upload Notification Settings"));
 
     box->setFlat(true);
@@ -627,9 +625,14 @@ void GeneralConf::initWindowOffsets() {
     auto* vboxLayout = new QVBoxLayout();
     box->setLayout(vboxLayout);
 
-    m_uploadWindowEnabled = new QCheckBox(tr("Enable Upload Notification"), this);
+    m_uploadWindowEnabled =
+      new QCheckBox(tr("Enable Upload Notification"), this);
     m_uploadWindowEnabled->setChecked(ConfigHandler().uploadWindowEnabled());
-    auto* uploadWindowEnabledWarning = new QLabel(tr("WAYLAND USERS: This upload notification window does not currently function correctly under Wayland. Please disable if you experience problems and use Wayland."), this);
+    auto* uploadWindowEnabledWarning =
+      new QLabel(tr("WAYLAND USERS: This upload notification window does not "
+                    "currently function correctly under Wayland. Please "
+                    "disable if you experience problems and use Wayland."),
+                 this);
     uploadWindowEnabledWarning->setWordWrap(true);
 
     auto* posY = new QHBoxLayout();
@@ -651,8 +654,10 @@ void GeneralConf::initWindowOffsets() {
     posX->addWidget(posXLabel);
 
     QString foreground = this->palette().windowText().color().name();
-    m_uploadWindowOffsetY->setStyleSheet(QStringLiteral("color: %1").arg(foreground));
-    m_uploadWindowOffsetX->setStyleSheet(QStringLiteral("color: %1").arg(foreground));
+    m_uploadWindowOffsetY->setStyleSheet(
+      QStringLiteral("color: %1").arg(foreground));
+    m_uploadWindowOffsetX->setStyleSheet(
+      QStringLiteral("color: %1").arg(foreground));
 
     auto* timeout = new QHBoxLayout();
     auto* timeoutLabel = new QLabel(tr("Timeout (ms)"), this);
@@ -668,7 +673,8 @@ void GeneralConf::initWindowOffsets() {
     m_uploadWindowStackPadding = new QSpinBox(this);
     m_uploadWindowStackPadding->setMinimum(0);
     m_uploadWindowStackPadding->setMaximum(99999);
-    m_uploadWindowStackPadding->setValue(ConfigHandler().uploadWindowStackPadding());
+    m_uploadWindowStackPadding->setValue(
+      ConfigHandler().uploadWindowStackPadding());
     stackPadding->addWidget(m_uploadWindowStackPadding);
     stackPadding->addWidget(stackPaddingLabel);
 
@@ -713,9 +719,8 @@ void GeneralConf::initWindowOffsets() {
 
         openWindowCount++;
 
-        QObject::connect(widget, &QObject::destroyed, [=]() {
-            openWindowCount--;
-        });
+        QObject::connect(
+          widget, &QObject::destroyed, [=]() { openWindowCount--; });
 
         widget->showPreUploadDialog(openWindowCount);
         widget->showPostUploadDialog(openWindowCount);
@@ -748,22 +753,26 @@ void GeneralConf::serverTPUEdited()
 
 void GeneralConf::uploadWindowOffsetYEdited()
 {
-    ConfigHandler().setUploadWindowOffsetY(m_uploadWindowOffsetY->text().toInt());
+    ConfigHandler().setUploadWindowOffsetY(
+      m_uploadWindowOffsetY->text().toInt());
 }
 
 void GeneralConf::uploadWindowOffsetXEdited()
 {
-    ConfigHandler().setUploadWindowOffsetX(m_uploadWindowOffsetX->text().toInt());
+    ConfigHandler().setUploadWindowOffsetX(
+      m_uploadWindowOffsetX->text().toInt());
 }
 
 void GeneralConf::uploadWindowTimeoutEdited()
 {
-    ConfigHandler().setUploadWindowTimeout(m_uploadWindowTimeout->text().toInt());
+    ConfigHandler().setUploadWindowTimeout(
+      m_uploadWindowTimeout->text().toInt());
 }
 
 void GeneralConf::uploadWindowStackPaddingEdited()
 {
-    ConfigHandler().setUploadWindowStackPadding(m_uploadWindowStackPadding->text().toInt());
+    ConfigHandler().setUploadWindowStackPadding(
+      m_uploadWindowStackPadding->text().toInt());
 }
 
 void GeneralConf::uploadWindowEnabledEdited(bool checked)

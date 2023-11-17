@@ -8,13 +8,13 @@
 #include "src/utils/globalvalues.h"
 #include "src/widgets/capture/capturewidget.h"
 #include "src/widgets/trayicon.h"
+#include <KF5/KGuiAddons/KSystemClipboard>
 #include <QApplication>
 #include <QClipboard>
 #include <QDBusConnection>
 #include <QDBusMessage>
 #include <QPixmap>
 #include <QRect>
-#include <KF5/KGuiAddons/KSystemClipboard>
 
 #if USE_WAYLAND_CLIPBOARD
 #include <KSystemClipboard>
@@ -320,21 +320,20 @@ void FlameshotDaemon::attachTextToClipboard(const QString& text,
 
     m_hostingClipboard = true;
 
-   #ifdef USE_WAYLAND_CLIPBOARD
+#ifdef USE_WAYLAND_CLIPBOARD
     auto* mimeData = new QMimeData();
     mimeData->setText(text);
-    KSystemClipboard::instance()->setMimeData(mimeData,
-      QClipboard::Clipboard);
-  #else
+    KSystemClipboard::instance()->setMimeData(mimeData, QClipboard::Clipboard);
+#else
     QClipboard* clipboard = QApplication::clipboard();
 
-      clipboard->blockSignals(true);
-      // This variable is necessary because the signal doesn't get blocked on
-      // windows for some reason
-      m_clipboardSignalBlocked = true;
-      clipboard->setText(text);
-      clipboard->blockSignals(false);
-  #endif
+    clipboard->blockSignals(true);
+    // This variable is necessary because the signal doesn't get blocked on
+    // windows for some reason
+    m_clipboardSignalBlocked = true;
+    clipboard->setText(text);
+    clipboard->blockSignals(false);
+#endif
 }
 
 void FlameshotDaemon::initTrayIcon()

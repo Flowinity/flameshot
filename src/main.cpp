@@ -20,10 +20,10 @@
 #include <QApplication>
 #include <QDir>
 #include <QLibraryInfo>
+#include <QNetworkReply>
 #include <QSharedMemory>
 #include <QTimer>
 #include <QTranslator>
-#include <QNetworkReply>
 #if defined(Q_OS_LINUX) || defined(Q_OS_UNIX)
 #include "imgupload/storages/privateuploader/privateuploaderupload.h"
 #include "src/core/flameshotdbusadapter.h"
@@ -127,7 +127,6 @@ void reinitializeAsQApplication(int& argc, char* argv[])
     configureApp(true);
 }
 
-
 int main(int argc, char* argv[])
 {
 #ifdef Q_OS_LINUX
@@ -192,8 +191,8 @@ int main(int argc, char* argv[])
       QObject::tr("Capture a screenshot of the specified monitor."));
 
     CommandArgument uploadArgument(
-        QStringLiteral("up"),
-        QObject::tr("Upload a screenshot to the specified server."));
+      QStringLiteral("up"),
+      QObject::tr("Upload a screenshot to the specified server."));
 
     // Options
     CommandOption pathOption(
@@ -256,10 +255,9 @@ int main(int argc, char* argv[])
       QObject::tr("Screen number"),
       QStringLiteral("-1"));
 
-    CommandOption fileHack(
-      { "_", "filehack" },
-      QObject::tr("Provide the file with no arguments."),
-      QStringLiteral("file-hack"));
+    CommandOption fileHack({ "_", "filehack" },
+                           QObject::tr("Provide the file with no arguments."),
+                           QStringLiteral("file-hack"));
 
     // Add checkers
     auto colorChecker = [](const QString& colorCode) -> bool {
@@ -366,7 +364,7 @@ int main(int argc, char* argv[])
                         contrastColorOption,
                         checkOption },
                       configArgument);
-    parser.AddOptions({fileHack}, uploadArgument);
+    parser.AddOptions({ fileHack }, uploadArgument);
 
     // Parse
     if (!parser.parse(qApp->arguments())) {
@@ -589,11 +587,12 @@ int main(int argc, char* argv[])
                 config.setContrastUiColor(parsedColor);
             }
         }
-    } else if(argc >= 2 && strcmp(argv[1], "up") == 0) { // UPLOAD
+    } else if (argc >= 2 && strcmp(argv[1], "up") == 0) { // UPLOAD
         // Option values
         QString path = argv[2] ? argv[2] : "";
         if (path.isEmpty()) {
-            AbstractLogger::error() << QObject::tr("Invalid path, must be a valid file");
+            AbstractLogger::error()
+              << QObject::tr("Invalid path, must be a valid file");
             goto finish;
         }
 
@@ -617,22 +616,33 @@ int main(int argc, char* argv[])
         PrivateUploaderUpload* uploader = new PrivateUploaderUpload();
         uploader->uploadBytes(byteArray, fileName, fileType);
 
-        QObject::connect(uploader, &PrivateUploaderUpload::uploadOk, [](QNetworkReply* reply) {
-            QJsonDocument response = QJsonDocument::fromJson(reply->readAll());
-            QJsonObject json = response.object();
-            const QString& url = json[QStringLiteral("url")].toString();
-            AbstractLogger::info(AbstractLogger::Stdout).enableMessageHeader(false) << url;
-            FlameshotDaemon::copyToClipboard(url);
-            qApp->exit(0);
-        });
+        QObject::connect(
+          uploader, &PrivateUploaderUpload::uploadOk, [](QNetworkReply* reply) {
+              QJsonDocument response =
+                QJsonDocument::fromJson(reply->readAll());
+              QJsonObject json = response.object();
+              const QString& url = json[QStringLiteral("url")].toString();
+              AbstractLogger::info(AbstractLogger::Stdout)
+                  .enableMessageHeader(false)
+                << url;
+              FlameshotDaemon::copyToClipboard(url);
+              qApp->exit(0);
+          });
 
-        QObject::connect(uploader, &PrivateUploaderUpload::uploadError, [uploader](const QString& error) {
-            AbstractLogger::error() << QObject::tr("Upload failed, error: %1").arg(error);
-        });
+        QObject::connect(
+          uploader,
+          &PrivateUploaderUpload::uploadError,
+          [uploader](const QString& error) {
+              AbstractLogger::error()
+                << QObject::tr("Upload failed, error: %1").arg(error);
+          });
 
-        QObject::connect(uploader, &PrivateUploaderUpload::uploadProgress, [](int progress) {
-            AbstractLogger::info(AbstractLogger::Stdout).enableMessageHeader(false) << "Upload progress: " +  QString::number(progress) + "%";
-        });
+        QObject::connect(
+          uploader, &PrivateUploaderUpload::uploadProgress, [](int progress) {
+              AbstractLogger::info(AbstractLogger::Stdout)
+                  .enableMessageHeader(false)
+                << "Upload progress: " + QString::number(progress) + "%";
+          });
         qApp->exec();
     } else {
         AbstractLogger::error() << QObject::tr("Invalid command");

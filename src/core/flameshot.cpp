@@ -394,11 +394,10 @@ void Flameshot::exportCapture(const QPixmap& capture,
 
         openWindowCount++;
 
-        QObject::connect(widget, &QObject::destroyed, [=]() {
-            openWindowCount--;
-        });
+        QObject::connect(
+          widget, &QObject::destroyed, [=]() { openWindowCount--; });
 
-        if(ConfigHandler().uploadWindowEnabled()) {
+        if (ConfigHandler().uploadWindowEnabled()) {
             widget->show();
         }
 
@@ -409,17 +408,17 @@ void Flameshot::exportCapture(const QPixmap& capture,
           widget, &ImgUploaderBase::uploadOk, [=](const QUrl& url) {
               if (ConfigHandler().copyURLAfterUpload()) {
                   if (!(tasks & CR::COPY)) {
-                      FlameshotDaemon::copyToClipboard(
-                        url.toString(), url.toString());
+                      FlameshotDaemon::copyToClipboard(url.toString(),
+                                                       url.toString());
                   }
                   widget->showPostUploadDialog(openWindowCount);
               }
           });
 
         QObject::connect(
-                widget, &ImgUploaderBase::uploadProgress, [=](int progress) {
-                    widget->updateProgress(progress);
-                });
+          widget, &ImgUploaderBase::uploadProgress, [=](int progress) {
+              widget->updateProgress(progress);
+          });
     }
 
     if (!(tasks & CR::UPLOAD)) {

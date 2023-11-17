@@ -37,7 +37,7 @@ ImgUploaderBase::ImgUploaderBase(const QPixmap& capture, QWidget* parent)
   , m_pixmap(capture)
 {
     FlameshotDaemon::copyToClipboard("");
-    if(!ConfigHandler().uploadWindowEnabled()) {
+    if (!ConfigHandler().uploadWindowEnabled()) {
         return;
     }
     setWindowTitle(tr("Upload image"));
@@ -45,22 +45,26 @@ ImgUploaderBase::ImgUploaderBase(const QPixmap& capture, QWidget* parent)
 
     setAttribute(Qt::WA_ShowWithoutActivating);
     setWindowFlags(Qt::BypassWindowManagerHint | Qt::WindowStaysOnTopHint |
-                   Qt::FramelessWindowHint | Qt::WindowDoesNotAcceptFocus | Qt::Tool);
+                   Qt::FramelessWindowHint | Qt::WindowDoesNotAcceptFocus |
+                   Qt::Tool);
 
     m_infoLabel = new QLabel(tr("Uploading image..."));
     m_infoLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
     m_infoLabel->setCursor(QCursor(Qt::IBeamCursor));
 
-    //get screens
+    // get screens
     QList<QScreen*> screens = QGuiApplication::screens();
     QRect totalResolution;
 
-    for (QScreen *screen : screens) {
+    for (QScreen* screen : screens) {
         totalResolution = totalResolution.united(screen->geometry());
     }
 
     setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-    move(totalResolution.bottomRight().x() - WINDOW_WIDTH - ConfigHandler().uploadWindowOffsetX(), totalResolution.bottomRight().y() - WINDOW_HEIGHT - ConfigHandler().uploadWindowOffsetY());
+    move(totalResolution.bottomRight().x() - WINDOW_WIDTH -
+           ConfigHandler().uploadWindowOffsetX(),
+         totalResolution.bottomRight().y() - WINDOW_HEIGHT -
+           ConfigHandler().uploadWindowOffsetY());
     show();
 
     m_closeButton = new QPushButton(tr("X"));
@@ -82,7 +86,8 @@ ImgUploaderBase::ImgUploaderBase(const QPixmap& capture, QWidget* parent)
     m_vLayout->addWidget(m_infoLabel);
 
     setAttribute(Qt::WA_DeleteOnClose);
-    QTimer::singleShot(ConfigHandler().uploadWindowTimeout(), this, &QWidget::close);
+    QTimer::singleShot(
+      ConfigHandler().uploadWindowTimeout(), this, &QWidget::close);
 }
 
 void ImgUploaderBase::contextMenuEvent(QContextMenuEvent* event)
@@ -120,18 +125,20 @@ void ImgUploaderBase::startDrag()
     //
 }
 
-void ImgUploaderBase::showPreUploadDialog(int open) {
-    if(!ConfigHandler().uploadWindowEnabled()) {
+void ImgUploaderBase::showPreUploadDialog(int open)
+{
+    if (!ConfigHandler().uploadWindowEnabled()) {
         return;
     }
-    int padding = open - 1 == 0 ? 0 : ConfigHandler().uploadWindowStackPadding();
+    int padding =
+      open - 1 == 0 ? 0 : ConfigHandler().uploadWindowStackPadding();
     int offset = (open - 1) * (WINDOW_HEIGHT + padding);
     move(QPoint(x(), y() - offset));
 }
 
 void ImgUploaderBase::updateProgress(int percentage)
 {
-    if(!m_infoLabel || !ConfigHandler().uploadWindowEnabled()) {
+    if (!m_infoLabel || !ConfigHandler().uploadWindowEnabled()) {
         return;
     }
 
@@ -141,7 +148,7 @@ void ImgUploaderBase::updateProgress(int percentage)
 void ImgUploaderBase::showPostUploadDialog(int open)
 {
     copyURL();
-    if(!ConfigHandler().uploadWindowEnabled()) {
+    if (!ConfigHandler().uploadWindowEnabled()) {
         return;
     }
 
@@ -154,7 +161,6 @@ void ImgUploaderBase::showPostUploadDialog(int open)
 
     hLayoutLabel->addWidget(label);
 
-
     hLayoutLabel->addWidget(m_closeButton);
 
     // Add the horizontal layout to the main vertical layout
@@ -165,12 +171,12 @@ void ImgUploaderBase::showPostUploadDialog(int open)
 
     m_copyUrlButton = new QPushButton(tr("Copy URL"));
     m_openUrlButton = new QPushButton(tr("Open URL"));
-    //m_openDeleteUrlButton = new QPushButton(tr("Delete image"));
+    // m_openDeleteUrlButton = new QPushButton(tr("Delete image"));
     m_toClipboardButton = new QPushButton(tr("Copy Image"));
     m_saveToFilesystemButton = new QPushButton(tr("Save Image"));
     m_hLayout->addWidget(m_copyUrlButton);
     m_hLayout->addWidget(m_openUrlButton);
-    //m_hLayout->addWidget(m_openDeleteUrlButton);
+    // m_hLayout->addWidget(m_openDeleteUrlButton);
     m_hLayout->addWidget(m_toClipboardButton);
     m_hLayout->addWidget(m_saveToFilesystemButton);
 

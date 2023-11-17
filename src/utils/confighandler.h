@@ -129,7 +129,9 @@ public:
     CONFIG_GETTER_SETTER(uploadWindowTimeout, setUploadWindowTimeout, int)
     CONFIG_GETTER_SETTER(uploadWindowOffsetY, setUploadWindowOffsetY, int)
     CONFIG_GETTER_SETTER(uploadWindowOffsetX, setUploadWindowOffsetX, int)
-    CONFIG_GETTER_SETTER(uploadWindowStackPadding, setUploadWindowStackPadding, int)
+    CONFIG_GETTER_SETTER(uploadWindowStackPadding,
+                         setUploadWindowStackPadding,
+                         int)
     CONFIG_GETTER_SETTER(uploadWindowEnabled, setUploadWindowEnabled, bool)
     CONFIG_GETTER_SETTER(saveLastRegion, setSaveLastRegion, bool)
     CONFIG_GETTER_SETTER(showSelectionGeometry, setShowSelectionGeometry, int)

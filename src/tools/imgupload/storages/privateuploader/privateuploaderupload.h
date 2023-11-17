@@ -15,11 +15,13 @@ class PrivateUploaderUpload : public QObject
 {
     Q_OBJECT
 
-      public:
-      PrivateUploaderUpload(QObject* parent = nullptr);
+public:
+    PrivateUploaderUpload(QObject* parent = nullptr);
 
 public slots:
-    void uploadBytes(const QByteArray& byteArray, const QString& fileName, const QString& fileType);
+    void uploadBytes(const QByteArray& byteArray,
+                     const QString& fileName,
+                     const QString& fileType);
 
 signals:
     void uploadOk(QNetworkReply* reply);

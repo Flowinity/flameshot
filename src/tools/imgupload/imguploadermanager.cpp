@@ -45,15 +45,14 @@ ImgUploaderBase* ImgUploaderManager::uploader(const QPixmap& capture,
     //    m_imgUploaderBase =
     //      (ImgUploaderBase*)(new ImgurUploader(capture, parent));
     //}
-    m_imgUploaderBase = (ImgUploaderBase*)(new PrivateUploader(capture, parent));
+    m_imgUploaderBase =
+      (ImgUploaderBase*)(new PrivateUploader(capture, parent));
     if (m_imgUploaderBase && !capture.isNull()) {
         m_imgUploaderBase->upload();
     }
 
     return m_imgUploaderBase;
 }
-
-
 
 ImgUploaderBase* ImgUploaderManager::uploader(const QString& imgUploaderPlugin)
 {

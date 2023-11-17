@@ -51,7 +51,9 @@ void PrivateUploader::handleReply(QNetworkReply* reply)
         // save image to history
         History history;
         m_currentImageName =
-          history.packFileName("privateuploader", upload[QStringLiteral("id")].toString(), m_currentImageName);
+          history.packFileName("privateuploader",
+                               upload[QStringLiteral("id")].toString(),
+                               m_currentImageName);
         history.save(pixmap(), m_currentImageName);
 
         emit uploadOk(imageURL());
@@ -68,31 +70,41 @@ void PrivateUploader::upload()
     pixmap().save(&buffer, "PNG");
 
     PrivateUploaderUpload* uploader = new PrivateUploaderUpload(this);
-    connect(uploader, &PrivateUploaderUpload::uploadOk, this, &PrivateUploader::handleReply);
-    const QString& fileName = FileNameHandler().parsedPattern().toLower().endsWith(".png")
-                                ? FileNameHandler().parsedPattern()
-                                : FileNameHandler().parsedPattern() + ".png";
+    connect(uploader,
+            &PrivateUploaderUpload::uploadOk,
+            this,
+            &PrivateUploader::handleReply);
+    const QString& fileName =
+      FileNameHandler().parsedPattern().toLower().endsWith(".png")
+        ? FileNameHandler().parsedPattern()
+        : FileNameHandler().parsedPattern() + ".png";
     uploader->uploadBytes(byteArray, fileName, "image/png");
 
-    connect(uploader, &PrivateUploaderUpload::uploadProgress, this, &PrivateUploader::updateProgress);
+    connect(uploader,
+            &PrivateUploaderUpload::uploadProgress,
+            this,
+            &PrivateUploader::updateProgress);
 }
 
-void PrivateUploader::deleteImage(const QString& fileName, const QString& deleteToken)
+void PrivateUploader::deleteImage(const QString& fileName,
+                                  const QString& deleteToken)
 {
     Q_UNUSED(fileName)
     Q_UNUSED(deleteToken)
 }
 
 /*
-void PrivateUploader::deleteImage(const QString& fileName, const QString& deleteToken)
+void PrivateUploader::deleteImage(const QString& fileName, const QString&
+deleteToken)
 {
     Q_UNUSED(fileName)
 
-    QUrl url(QString("%1/api/v3/gallery/%2").arg(ConfigHandler().serverTPU(), deleteToken));
-    std::cout << url.toString().toStdString() << std::endl;
+    QUrl url(QString("%1/api/v3/gallery/%2").arg(ConfigHandler().serverTPU(),
+deleteToken)); std::cout << url.toString().toStdString() << std::endl;
 
     QNetworkRequest request(url);
-    request.setRawHeader("Authorization", QString("%1").arg(ConfigHandler().uploadTokenTPU()).toUtf8());
+    request.setRawHeader("Authorization",
+QString("%1").arg(ConfigHandler().uploadTokenTPU()).toUtf8());
 
     QNetworkReply *reply = m_NetworkAM->deleteResource(request);
 
@@ -106,7 +118,8 @@ void PrivateUploader::deleteImage(const QString& fileName, const QString& delete
             qDebug() << "Image deleted successfully";
         } else {
             // Check if reply is nullptr to avoid dereferencing a null pointer
-            qDebug() << "Error deleting image:" << (reply ? reply->errorString() : "Reply is nullptr");
+            qDebug() << "Error deleting image:" << (reply ? reply->errorString()
+: "Reply is nullptr");
         }
 
         // Delete the reply and exit the event loop
