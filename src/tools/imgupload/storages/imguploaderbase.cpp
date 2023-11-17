@@ -131,7 +131,7 @@ void ImgUploaderBase::showPreUploadDialog(int open) {
 
 void ImgUploaderBase::updateProgress(int percentage)
 {
-    if(!m_infoLabel) {
+    if(!m_infoLabel || !ConfigHandler().uploadWindowEnabled()) {
         return;
     }
 
