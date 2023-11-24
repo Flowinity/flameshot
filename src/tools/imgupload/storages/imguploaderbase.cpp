@@ -60,8 +60,8 @@ ImgUploaderBase::ImgUploaderBase(const QPixmap& capture, QWidget* parent)
         totalResolution = totalResolution.united(screen->geometry());
     }
 
-    setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-    move(totalResolution.bottomRight().x() - WINDOW_WIDTH -
+    setFixedSize(WINDOW_WIDTH * 1.5, WINDOW_HEIGHT);
+    move(totalResolution.bottomRight().x() - (WINDOW_WIDTH * 1.5) -
            ConfigHandler().uploadWindowOffsetX(),
          totalResolution.bottomRight().y() - WINDOW_HEIGHT -
            ConfigHandler().uploadWindowOffsetY());
@@ -145,8 +145,7 @@ void ImgUploaderBase::updateProgress(int percentage)
     m_infoLabel->setText(tr("Uploading image... %1%").arg(percentage));
 }
 
-void ImgUploaderBase::showPostUploadDialog(int open)
-{
+void ImgUploaderBase::showPostUploadDialog(int open) {
     copyURL();
     if (!ConfigHandler().uploadWindowEnabled()) {
         return;
@@ -154,49 +153,50 @@ void ImgUploaderBase::showPostUploadDialog(int open)
 
     m_infoLabel->deleteLater();
 
-    QHBoxLayout* hLayoutLabel = new QHBoxLayout;
+    QHBoxLayout* imageAndUrlLayout = new QHBoxLayout;
+
+    auto* imageLabel = new ImageLabel();
+    imageLabel->setScreenshot(m_pixmap);
+    imageLabel->setFixedSize(WINDOW_WIDTH / 2.5, WINDOW_HEIGHT - 20);
+    imageLabel->setCursor(QCursor(Qt::PointingHandCursor));
+
+    imageAndUrlLayout->addWidget(imageLabel, 0, Qt::AlignCenter);
+
+    QVBoxLayout* urlAndButtonsLayout = new QVBoxLayout;
+
 
     QLabel* label = new QLabel(m_imageURL.toString());
     label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    QHBoxLayout* closeButtonAndLabelLayout = new QHBoxLayout;
 
-    hLayoutLabel->addWidget(label);
+    closeButtonAndLabelLayout->addWidget(label);
+    closeButtonAndLabelLayout->addWidget(m_closeButton);
+    closeButtonAndLabelLayout->setAlignment(m_closeButton, Qt::AlignRight);
+    closeButtonAndLabelLayout->setAlignment(label, Qt::AlignLeft);
 
-    hLayoutLabel->addWidget(m_closeButton);
 
-    // Add the horizontal layout to the main vertical layout
-    m_vLayout->addLayout(hLayoutLabel);
+    urlAndButtonsLayout->addLayout(closeButtonAndLabelLayout);
 
-    m_hLayout = new QHBoxLayout();
-    m_vLayout->addLayout(m_hLayout);
-
+    QHBoxLayout* buttonsLayout = new QHBoxLayout;
     m_copyUrlButton = new QPushButton(tr("Copy URL"));
     m_openUrlButton = new QPushButton(tr("Open URL"));
-    // m_openDeleteUrlButton = new QPushButton(tr("Delete image"));
     m_toClipboardButton = new QPushButton(tr("Copy Image"));
     m_saveToFilesystemButton = new QPushButton(tr("Save Image"));
-    m_hLayout->addWidget(m_copyUrlButton);
-    m_hLayout->addWidget(m_openUrlButton);
-    // m_hLayout->addWidget(m_openDeleteUrlButton);
-    m_hLayout->addWidget(m_toClipboardButton);
-    m_hLayout->addWidget(m_saveToFilesystemButton);
 
-    connect(
-      m_copyUrlButton, &QPushButton::clicked, this, &ImgUploaderBase::copyURL);
-    connect(
-      m_openUrlButton, &QPushButton::clicked, this, &ImgUploaderBase::openURL);
-    /*connect(m_openDeleteUrlButton,
-            &QPushButton::clicked,
-            this,
-            &ImgUploaderBase::deleteCurrentImage);*/
-    connect(m_toClipboardButton,
-            &QPushButton::clicked,
-            this,
-            &ImgUploaderBase::copyImage);
+    buttonsLayout->addWidget(m_copyUrlButton);
+    buttonsLayout->addWidget(m_openUrlButton);
+    buttonsLayout->addWidget(m_toClipboardButton);
+    buttonsLayout->addWidget(m_saveToFilesystemButton);
 
-    QObject::connect(m_saveToFilesystemButton,
-                     &QPushButton::clicked,
-                     this,
-                     &ImgUploaderBase::saveScreenshotToFilesystem);
+    connect(m_copyUrlButton, &QPushButton::clicked, this, &ImgUploaderBase::copyURL);
+    connect(m_openUrlButton, &QPushButton::clicked, this, &ImgUploaderBase::openURL);
+    connect(m_toClipboardButton, &QPushButton::clicked, this, &ImgUploaderBase::copyImage);
+    connect(m_saveToFilesystemButton, &QPushButton::clicked, this, &ImgUploaderBase::saveScreenshotToFilesystem);
+
+    urlAndButtonsLayout->addLayout(buttonsLayout);
+    imageAndUrlLayout->addLayout(urlAndButtonsLayout);
+
+    m_vLayout->addLayout(imageAndUrlLayout);
 }
 
 void ImgUploaderBase::openURL()
