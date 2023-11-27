@@ -170,7 +170,6 @@ void ImgUploaderBase::showPostUploadDialog(int open) {
     copyURL();
     m_hasUploaded = true;
     if (!ConfigHandler().uploadWindowEnabled()) {
-        m_closeTimer->deleteLater();
         return;
     }
 
