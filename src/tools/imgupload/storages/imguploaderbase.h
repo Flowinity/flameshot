@@ -69,9 +69,14 @@ private:
     QPushButton* m_closeButton;
     QUrl m_imageURL;
     NotificationWidget* m_notification;
+    QTimer* m_closeTimer;
+    bool m_hasUploaded;
+    int m_remainingTimeOnPause = -1;
 
 protected:
     void contextMenuEvent(QContextMenuEvent* event) override;
+    void enterEvent(QEvent *event) override;
+    void leaveEvent(QEvent *event) override;
 
 public:
     QString m_currentImageName;

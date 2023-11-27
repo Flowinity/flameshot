@@ -40,6 +40,7 @@
 #include <QScreen>
 #include <QShortcut>
 #include <draggablewidgetmaker.h>
+#include <iostream>
 
 #if !defined(DISABLE_UPDATE_CHECKER)
 #include "src/widgets/updatenotificationwidget.h"
@@ -257,6 +258,16 @@ CaptureWidget::CaptureWidget(const CaptureRequest& req,
     }
 
     updateCursor();
+#ifdef MEASURE_INIT_TIME
+    auto initTimeEnv = qEnvironmentVariable("FLAMESHOT_INIT_TIME");
+    long initTime = initTimeEnv.toLongLong();
+    if (initTime) {
+        std::cout << "CaptureWidget init time: "
+                               << QDateTime::currentMSecsSinceEpoch() -
+                                    initTime
+                               << "ms" << std::endl;
+    }
+#endif
 }
 
 CaptureWidget::~CaptureWidget()

@@ -28,6 +28,7 @@
 #include <QTimer>
 #include <QUrlQuery>
 #include <QVBoxLayout>
+#include <iostream>
 
 #define WINDOW_WIDTH 440
 #define WINDOW_HEIGHT 120
@@ -86,8 +87,28 @@ ImgUploaderBase::ImgUploaderBase(const QPixmap& capture, QWidget* parent)
     m_vLayout->addWidget(m_infoLabel);
 
     setAttribute(Qt::WA_DeleteOnClose);
-    QTimer::singleShot(
-      ConfigHandler().uploadWindowTimeout(), this, &QWidget::close);
+
+    m_closeTimer = new QTimer(this);
+    m_closeTimer->setSingleShot(true);
+    m_closeTimer->setInterval(ConfigHandler().uploadWindowTimeout());
+    connect(m_closeTimer, &QTimer::timeout, this, &QWidget::close);
+}
+
+// Handle pause/start of timer when hovering over the Qt widget
+void ImgUploaderBase::enterEvent(QEvent *event) {
+    if ((m_closeTimer != nullptr) && m_closeTimer->isActive() && m_hasUploaded) {
+        m_remainingTimeOnPause = m_closeTimer->remainingTime();
+        m_closeTimer->stop();
+    }
+    QWidget::enterEvent(event);
+}
+
+void ImgUploaderBase::leaveEvent(QEvent *event) {
+    if ((m_closeTimer != nullptr) && !m_closeTimer->isActive() && m_hasUploaded) {
+        m_closeTimer->start(m_remainingTimeOnPause);
+        m_remainingTimeOnPause = -1;
+    }
+    QWidget::leaveEvent(event);
 }
 
 void ImgUploaderBase::contextMenuEvent(QContextMenuEvent* event)
@@ -147,9 +168,13 @@ void ImgUploaderBase::updateProgress(int percentage)
 
 void ImgUploaderBase::showPostUploadDialog(int open) {
     copyURL();
+    m_hasUploaded = true;
     if (!ConfigHandler().uploadWindowEnabled()) {
+        m_closeTimer->deleteLater();
         return;
     }
+
+    m_closeTimer->start();
 
     m_infoLabel->deleteLater();
 

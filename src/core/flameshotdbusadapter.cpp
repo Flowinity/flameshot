@@ -4,6 +4,7 @@
 #include "flameshotdbusadapter.h"
 #include "src/core/flameshot.h"
 #include "src/core/flameshotdaemon.h"
+#include <QDateTime>
 
 FlameshotDBusAdapter::FlameshotDBusAdapter(QObject* parent)
   : QDBusAbstractAdaptor(parent)
@@ -29,6 +30,9 @@ void FlameshotDBusAdapter::attachPin(const QByteArray& data)
 
 void FlameshotDBusAdapter::captureScreen(const QString& captureMode)
 {
+#ifdef MEASURE_INIT_TIME
+    qputenv("FLAMESHOT_INIT_TIME", QByteArray::number(QDateTime::currentMSecsSinceEpoch()));
+#endif
     int const captureModeInt = captureMode.toInt();
     if (captureModeInt < 0 || captureModeInt > 3) {
         return;

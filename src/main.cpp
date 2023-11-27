@@ -129,6 +129,10 @@ void reinitializeAsQApplication(int& argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
+#ifdef MEASURE_INIT_TIME
+    qputenv("FLAMESHOT_INIT_TIME", QByteArray::number(QDateTime::currentMSecsSinceEpoch()));
+#endif
+    
 #ifdef Q_OS_LINUX
     wayland_hacks();
 #endif
