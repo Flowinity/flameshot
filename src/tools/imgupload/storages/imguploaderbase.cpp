@@ -104,7 +104,11 @@ void ImgUploaderBase::enterEvent(QEvent *event) {
 
 void ImgUploaderBase::leaveEvent(QEvent *event) {
     if ((m_closeTimer != nullptr) && !m_closeTimer->isActive() && m_hasUploaded) {
-        m_closeTimer->start(m_remainingTimeOnPause);
+        if(m_remainingTimeOnPause != -1) {
+            m_closeTimer->start(m_remainingTimeOnPause);
+        } else {
+            m_closeTimer->start();
+        }
         m_remainingTimeOnPause = -1;
     }
     QWidget::leaveEvent(event);
@@ -189,14 +193,14 @@ void ImgUploaderBase::showPostUploadDialog(int open) {
     QVBoxLayout* urlAndButtonsLayout = new QVBoxLayout;
 
 
-    QLabel* label = new QLabel(m_imageURL.toString());
-    label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_label = new QLabel(m_imageURL.toString());
+    m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
     QHBoxLayout* closeButtonAndLabelLayout = new QHBoxLayout;
 
-    closeButtonAndLabelLayout->addWidget(label);
+    closeButtonAndLabelLayout->addWidget(m_label);
     closeButtonAndLabelLayout->addWidget(m_closeButton);
     closeButtonAndLabelLayout->setAlignment(m_closeButton, Qt::AlignRight);
-    closeButtonAndLabelLayout->setAlignment(label, Qt::AlignLeft);
+    closeButtonAndLabelLayout->setAlignment(m_label, Qt::AlignLeft);
 
 
     urlAndButtonsLayout->addLayout(closeButtonAndLabelLayout);

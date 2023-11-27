@@ -72,6 +72,7 @@ private:
     QTimer* m_closeTimer;
     bool m_hasUploaded;
     int m_remainingTimeOnPause = -1;
+    QLabel* m_label;
 
 protected:
     void contextMenuEvent(QContextMenuEvent* event) override;
