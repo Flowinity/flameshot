@@ -28,7 +28,6 @@
 #include <QTimer>
 #include <QUrlQuery>
 #include <QVBoxLayout>
-#include <iostream>
 
 #define WINDOW_WIDTH 440
 #define WINDOW_HEIGHT 120
@@ -226,7 +225,7 @@ void ImgUploaderBase::showPostUploadDialog(int open) {
 
 void ImgUploaderBase::openURL()
 {
-    bool successful = QDesktopServices::openUrl(m_imageURL);
+    bool successful =   QDesktopServices::openUrl(m_imageURL);
 }
 
 void ImgUploaderBase::copyURL()
