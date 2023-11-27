@@ -170,6 +170,7 @@ void ImgUploaderBase::showPostUploadDialog(int open) {
     copyURL();
     m_hasUploaded = true;
     if (!ConfigHandler().uploadWindowEnabled()) {
+        destroyed(this);
         return;
     }
 
