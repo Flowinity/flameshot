@@ -52,20 +52,15 @@ ImgUploaderBase::ImgUploaderBase(const QPixmap& capture, QWidget* parent)
     m_infoLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
     m_infoLabel->setCursor(QCursor(Qt::IBeamCursor));
 
-    // get screens
-    QList<QScreen*> screens = QGuiApplication::screens();
-    QRect totalResolution;
+    QScreen* primaryScreen = QGuiApplication::primaryScreen();
 
-    for (QScreen* screen : screens) {
-        totalResolution = totalResolution.united(screen->geometry());
+    if (primaryScreen) {
+        QRect primaryScreenGeometry = primaryScreen->availableGeometry();
+        setFixedSize(WINDOW_WIDTH * 1.5, WINDOW_HEIGHT);
+        move(primaryScreenGeometry.right() - (WINDOW_WIDTH * 1.5) - ConfigHandler().uploadWindowOffsetX(),
+             primaryScreenGeometry.bottom() - WINDOW_HEIGHT - ConfigHandler().uploadWindowOffsetY());
+        show();
     }
-
-    setFixedSize(WINDOW_WIDTH * 1.5, WINDOW_HEIGHT);
-    move(totalResolution.bottomRight().x() - (WINDOW_WIDTH * 1.5) -
-           ConfigHandler().uploadWindowOffsetX(),
-         totalResolution.bottomRight().y() - WINDOW_HEIGHT -
-           ConfigHandler().uploadWindowOffsetY());
-    show();
 
     m_closeButton = new QPushButton(tr("X"));
     m_closeButton->setFixedSize(20, 20);
