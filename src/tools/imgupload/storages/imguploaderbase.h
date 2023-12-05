@@ -19,6 +19,7 @@ class NotificationWidget;
 class ImgUploaderBase : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit ImgUploaderBase(const QPixmap& capture, QWidget* parent = nullptr);
 
@@ -38,6 +39,7 @@ signals:
     void uploadOk(const QUrl& url);
     void deleteOk();
     void uploadProgress(int progress);
+    void uploadError(QNetworkReply* error);
 
 public slots:
     void showPostUploadDialog(int open);
@@ -70,9 +72,11 @@ private:
     QUrl m_imageURL;
     NotificationWidget* m_notification;
     QTimer* m_closeTimer;
+    QPushButton* m_retryButton = nullptr;
     bool m_hasUploaded;
     int m_remainingTimeOnPause = -1;
     QLabel* m_label;
+    void usePrimaryScreen();
 
 protected:
     void contextMenuEvent(QContextMenuEvent* event) override;
@@ -81,4 +85,5 @@ protected:
 
 public:
     QString m_currentImageName;
+    void showErrorUploadDialog(QNetworkReply* error);
 };

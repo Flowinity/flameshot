@@ -193,6 +193,32 @@ QString LowerBoundedInt::expected()
     return QStringLiteral("number >= %1").arg(m_min);
 }
 
+
+// LOWER BOUNDED FLOAT
+
+LowerBoundedDouble::LowerBoundedDouble(double min, double def)
+  : m_min(min)
+  , m_def(def)
+{}
+
+bool LowerBoundedDouble::check(const QVariant& val)
+{
+    QString str = val.toString();
+    bool conversionOk;
+    int num = str.toDouble(&conversionOk);
+    return conversionOk && num >= m_min;
+}
+
+QVariant LowerBoundedDouble::fallback()
+{
+    return m_def;
+}
+
+QString LowerBoundedDouble::expected()
+{
+    return QStringLiteral("number >= %1").arg(m_min);
+}
+
 // KEY SEQUENCE
 
 KeySequence::KeySequence(const QKeySequence& fallback)

@@ -16,11 +16,12 @@
 #include <QCursor>
 #include <QDesktopServices>
 #include <QGuiApplication>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLabel>
 #include <QMimeData>
-#include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <QPushButton>
 #include <QRect>
 #include <QScreen>
@@ -28,9 +29,6 @@
 #include <QTimer>
 #include <QUrlQuery>
 #include <QVBoxLayout>
-
-#define WINDOW_WIDTH 440
-#define WINDOW_HEIGHT 120
 
 ImgUploaderBase::ImgUploaderBase(const QPixmap& capture, QWidget* parent)
   : QWidget(parent)
@@ -52,14 +50,24 @@ ImgUploaderBase::ImgUploaderBase(const QPixmap& capture, QWidget* parent)
     m_infoLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
     m_infoLabel->setCursor(QCursor(Qt::IBeamCursor));
 
-    QScreen* primaryScreen = QGuiApplication::primaryScreen();
+    int display = ConfigHandler().uploadWindowDisplay();
 
-    if (primaryScreen) {
-        QRect primaryScreenGeometry = primaryScreen->availableGeometry();
-        setFixedSize(WINDOW_WIDTH * 1.5, WINDOW_HEIGHT);
-        move(primaryScreenGeometry.right() - (WINDOW_WIDTH * 1.5) - ConfigHandler().uploadWindowOffsetX(),
-             primaryScreenGeometry.bottom() - WINDOW_HEIGHT - ConfigHandler().uploadWindowOffsetY());
-        show();
+    if (display < 0) {
+        usePrimaryScreen();
+    } else {
+        QList<QScreen*> screens = QGuiApplication::screens();
+
+        if(screens.size() > display) {
+            QScreen* screen = screens[display];
+            QRect const screenGeometry = screen->availableGeometry();
+            setFixedSize(ConfigHandler().uploadWindowScaleWidth(),
+                        ConfigHandler().uploadWindowScaleHeight());
+            move(screenGeometry.right() - (ConfigHandler().uploadWindowScaleWidth()) - ConfigHandler().uploadWindowOffsetX(),
+                screenGeometry.bottom() - ConfigHandler().uploadWindowScaleHeight() - ConfigHandler().uploadWindowOffsetY());
+            show();
+        } else {
+            usePrimaryScreen();
+        }
     }
 
     m_closeButton = new QPushButton(tr("X"));
@@ -86,6 +94,16 @@ ImgUploaderBase::ImgUploaderBase(const QPixmap& capture, QWidget* parent)
     m_closeTimer->setSingleShot(true);
     m_closeTimer->setInterval(ConfigHandler().uploadWindowTimeout());
     connect(m_closeTimer, &QTimer::timeout, this, &QWidget::close);
+}
+
+void ImgUploaderBase::usePrimaryScreen() {
+    QScreen* primaryScreen = QGuiApplication::primaryScreen();
+    QRect const primaryScreenGeometry = primaryScreen->availableGeometry();
+    setFixedSize(ConfigHandler().uploadWindowScaleWidth(),
+                 ConfigHandler().uploadWindowScaleHeight());
+    move(primaryScreenGeometry.right() - (ConfigHandler().uploadWindowScaleWidth()) - ConfigHandler().uploadWindowOffsetX(),
+         primaryScreenGeometry.bottom() - ConfigHandler().uploadWindowScaleHeight() - ConfigHandler().uploadWindowOffsetY());
+    show();
 }
 
 // Handle pause/start of timer when hovering over the Qt widget
@@ -151,7 +169,7 @@ void ImgUploaderBase::showPreUploadDialog(int open)
     }
     int padding =
       open - 1 == 0 ? 0 : ConfigHandler().uploadWindowStackPadding();
-    int offset = (open - 1) * (WINDOW_HEIGHT + padding);
+    int offset = (open - 1) * (ConfigHandler().uploadWindowScaleHeight() + padding);
     move(QPoint(x(), y() - offset));
 }
 
@@ -162,6 +180,36 @@ void ImgUploaderBase::updateProgress(int percentage)
     }
 
     m_infoLabel->setText(tr("Uploading image... %1%").arg(percentage));
+}
+
+void ImgUploaderBase::showErrorUploadDialog(QNetworkReply* error)
+{
+    if (!ConfigHandler().uploadWindowEnabled()) {
+        return;
+    }
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(error->readAll());
+    QJsonObject jsonObject = jsonResponse.object();
+    QJsonValue errorsValue = jsonObject.value("errors");
+
+    if (!errorsValue.isUndefined()) {
+        QJsonArray errorsArray = jsonObject["errors"].toArray();
+        if (!errorsArray.isEmpty()) {
+            QJsonObject firstErrorObject = errorsArray[0].toObject();
+            QString errorMessage = firstErrorObject["message"].toString();
+            m_infoLabel->setText(tr("%1").arg(errorMessage));
+        }
+    } else {
+        m_infoLabel->setText(tr("Error uploading image: %1")
+                               .arg(error->errorString()));
+    }
+    m_closeTimer->start();
+    if(m_retryButton == nullptr) {
+        m_retryButton = new QPushButton(tr("Retry"));
+        connect(
+          m_retryButton, &QPushButton::clicked, this, &ImgUploaderBase::upload);
+
+        m_vLayout->addWidget(m_retryButton);
+    }
 }
 
 void ImgUploaderBase::showPostUploadDialog(int open) {
@@ -176,12 +224,17 @@ void ImgUploaderBase::showPostUploadDialog(int open) {
 
     m_infoLabel->deleteLater();
 
+    if(m_retryButton != nullptr) {
+        m_retryButton->deleteLater();
+    }
+
     QHBoxLayout* imageAndUrlLayout = new QHBoxLayout;
 
     auto* imageLabel = new ImageLabel();
     imageLabel->setScreenshot(m_pixmap);
-    imageLabel->setFixedSize(WINDOW_WIDTH / 2.5, WINDOW_HEIGHT - 20);
+    imageLabel->setFixedSize(ConfigHandler().uploadWindowImageWidth(), ConfigHandler().uploadWindowScaleHeight() - 20);
     imageLabel->setCursor(QCursor(Qt::PointingHandCursor));
+    imageLabel->setContentsMargins(10, 0, 10, 0);
 
     imageAndUrlLayout->addWidget(imageLabel, 0, Qt::AlignCenter);
 

@@ -29,6 +29,7 @@
 #include <QThread>
 #include <QTimer>
 #include <QVersionNumber>
+#include <QNetworkReply>
 
 #if defined(Q_OS_MACOS)
 #include <QScreen>
@@ -419,6 +420,16 @@ void Flameshot::exportCapture(const QPixmap& capture,
           widget, &ImgUploaderBase::uploadProgress, [=](int progress) {
               widget->updateProgress(progress);
           });
+
+        QObject::connect(
+                widget, &ImgUploaderBase::uploadError, [=](QNetworkReply* error) {
+                        widget->showErrorUploadDialog(error);
+                        if (error->error() == QNetworkReply::ContentOperationNotPermittedError) {
+                                QMessageBox::warning(nullptr,
+                                                 tr("Error"),
+                                                 tr("Upload failed: %1").arg(error->errorString()));
+                        }
+                        });
     }
 
     if (!(tasks & CR::UPLOAD)) {

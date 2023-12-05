@@ -61,7 +61,7 @@ void PrivateUploaderUpload::uploadBytes(const QByteArray& byteArray,
         if (reply->error() == QNetworkReply::NoError) {
             emit uploadOk(reply);
         } else {
-            emit uploadError(reply->errorString());
+            emit uploadError(reply);
         }
 
         reply->deleteLater();

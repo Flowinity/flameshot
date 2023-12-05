@@ -130,6 +130,10 @@ static QMap<class QString, QSharedPointer<ValueHandler>>
     OPTION("uploadWindowOffsetX"         ,LowerBoundedInt (-99999, 10)),
     OPTION("uploadWindowStackPadding"    ,LowerBoundedInt (0, 25)),
     OPTION("uploadWindowEnabled"         ,Bool               ( true          )),
+    OPTION("uploadWindowScaleWidth"      ,LowerBoundedInt(0, 580)),
+    OPTION("uploadWindowScaleHeight"     ,LowerBoundedInt(0, 120)),
+    OPTION("uploadWindowImageWidth"      ,LowerBoundedInt(0, 125)),
+    OPTION("uploadWindowDisplay"         ,LowerBoundedInt             ( -1, -1     )),
     OPTION("showSelectionGeometry"  , BoundedInt               (0,5,4)),
     OPTION("showSelectionGeometryHideTime", LowerBoundedInt       (0, 3000)),
     OPTION("jpegQuality", BoundedInt     (0,100,75))

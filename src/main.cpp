@@ -636,9 +636,9 @@ int main(int argc, char* argv[])
         QObject::connect(
           uploader,
           &PrivateUploaderUpload::uploadError,
-          [uploader](const QString& error) {
+          [](const QNetworkReply* error) {
               AbstractLogger::error()
-                << QObject::tr("Upload failed, error: %1").arg(error);
+                << QObject::tr("Upload failed, error: %1").arg(error->errorString());
           });
 
         QObject::connect(

@@ -3,32 +3,34 @@
 #include "generalconf.h"
 #include "imgupload/imguploadermanager.h"
 #include "imgupload/storages/imguploaderbase.h"
-#include "src/core/flameshot.h"
 #include "src/utils/confighandler.h"
 #include <QCheckBox>
 #include <QComboBox>
 #include <QFile>
 #include <QFileDialog>
 #include <QGroupBox>
+#include <QGuiApplication>
 #include <QImageWriter>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSettings>
-#include <QSizePolicy>
 #include <QSpinBox>
 #include <QStandardPaths>
 #include <QTextCodec>
 #include <QVBoxLayout>
+#include <QScreen>
 
 GeneralConf::GeneralConf(QWidget* parent)
   : QWidget(parent)
   , m_historyConfirmationToDelete(nullptr)
   , m_undoLimit(nullptr)
 {
-    m_layout = new QVBoxLayout(this);
-    m_layout->setAlignment(Qt::AlignTop);
+
+    m_scrollAreaLayout = new QVBoxLayout(this);
+    m_scrollAreaLayout->setContentsMargins(0, 0, 0, 0);
+
 
     // Scroll area adapts the size of the content on small screens.
     // It must be initialized before the checkboxes.
@@ -50,8 +52,9 @@ GeneralConf::GeneralConf(QWidget* parent)
     initShowSidePanelButton();
     initUseJpgForClipboard();
     initCopyOnDoubleClick();
-    initSaveAfterCopy();
+    initServerTPU();
     initWindowOffsets();
+    initSaveAfterCopy();
     initCopyPathAfterSave();
     initCopyAndCloseAfterUpload();
     initUploadWithoutConfirmation();
@@ -60,13 +63,8 @@ GeneralConf::GeneralConf(QWidget* parent)
     initUploadHistoryMax();
     initUndoLimit();
     // initUploadClientSecret();
-    initServerTPU();
-    initUploadTokenTPU();
     initPredefinedColorPaletteLarge();
     initShowSelectionGeometry();
-
-    m_layout->addStretch();
-
     initShowMagnifier();
     initSquareMagnifier();
     initJpegQuality();
@@ -231,20 +229,19 @@ void GeneralConf::resetConfiguration()
 void GeneralConf::initScrollArea()
 {
     m_scrollArea = new QScrollArea(this);
-    m_layout->addWidget(m_scrollArea);
+    m_scrollAreaLayout->addWidget(m_scrollArea);
 
     auto* content = new QWidget(m_scrollArea);
-    m_scrollArea->setWidget(content);
     m_scrollArea->setWidgetResizable(true);
-    m_scrollArea->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Maximum);
     m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_scrollArea->setWidget(content);
 
     content->setObjectName("content");
     m_scrollArea->setObjectName("scrollArea");
     m_scrollArea->setStyleSheet(
       "#content, #scrollArea { background: transparent; border: 0px; }");
     m_scrollAreaLayout = new QVBoxLayout(content);
-    m_scrollAreaLayout->setContentsMargins(0, 0, 20, 0);
+    m_scrollAreaLayout->setContentsMargins(0, 0, 30, 0);
 }
 
 void GeneralConf::initShowHelp()
@@ -331,7 +328,7 @@ void GeneralConf::initConfigButtons()
     auto* box = new QGroupBox(tr("Configuration File"));
     box->setFlat(true);
     box->setLayout(buttonLayout);
-    m_layout->addWidget(box);
+    m_scrollAreaLayout->addWidget(box);
 
     m_exportButton = new QPushButton(tr("Export"));
     buttonLayout->addWidget(m_exportButton);
@@ -471,7 +468,7 @@ void GeneralConf::initSaveAfterCopy()
 
     auto* box = new QGroupBox(tr("Save Path"));
     box->setFlat(true);
-    m_layout->addWidget(box);
+    m_scrollAreaLayout->addWidget(box);
 
     auto* vboxLayout = new QVBoxLayout();
     box->setLayout(vboxLayout);
@@ -504,8 +501,6 @@ void GeneralConf::initSaveAfterCopy()
 
     auto* extensionLayout = new QHBoxLayout();
 
-    extensionLayout->addWidget(
-      new QLabel(tr("Preferred save file extension:")));
     m_setSaveAsFileExtension = new QComboBox(this);
 
     QStringList imageFormatList;
@@ -524,6 +519,8 @@ void GeneralConf::initSaveAfterCopy()
             &GeneralConf::setSaveAsFileExtension);
 
     extensionLayout->addWidget(m_setSaveAsFileExtension);
+    extensionLayout->addWidget(
+      new QLabel(tr("Preferred save file extension")));
     vboxLayout->addLayout(extensionLayout);
 }
 
@@ -534,31 +531,30 @@ void GeneralConf::historyConfirmationToDelete(bool checked)
 
 void GeneralConf::initUploadHistoryMax()
 {
-    auto* box = new QGroupBox(tr("Latest Uploads Max Size"));
-    box->setFlat(true);
-    m_layout->addWidget(box);
-
-    auto* vboxLayout = new QVBoxLayout();
-    box->setLayout(vboxLayout);
-
+    auto* layout = new QHBoxLayout();
+    auto* layoutLabel = new QLabel(tr("Latest Uploads Max Size"), this);
     m_uploadHistoryMax = new QSpinBox(this);
     m_uploadHistoryMax->setMaximum(50);
     QString foreground = this->palette().windowText().color().name();
-    m_uploadHistoryMax->setStyleSheet(
-      QStringLiteral("color: %1").arg(foreground));
+    m_uploadHistoryMax->setStyleSheet(QStringLiteral("color: %1").arg(foreground));
+    layout->addWidget(m_uploadHistoryMax);
+    layout->addWidget(layoutLabel);
+
 
     connect(m_uploadHistoryMax,
             static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
             this,
             &GeneralConf::uploadHistoryMaxChanged);
-    vboxLayout->addWidget(m_uploadHistoryMax);
+
+    m_scrollAreaLayout->addLayout(layout);
+
 }
 
 void GeneralConf::initUploadClientSecret()
 {
     auto* box = new QGroupBox(tr("Imgur Application Client ID"));
     box->setFlat(true);
-    m_layout->addWidget(box);
+    m_scrollAreaLayout->addWidget(box);
 
     auto* vboxLayout = new QVBoxLayout();
     box->setLayout(vboxLayout);
@@ -577,12 +573,18 @@ void GeneralConf::initUploadClientSecret()
 
 void GeneralConf::initServerTPU()
 {
-    auto* box = new QGroupBox(tr("PrivateUploader Server"));
+    auto* box = new QGroupBox(tr("PrivateUploader"));
+    auto* box2 = new QGroupBox();
     box->setFlat(true);
-    m_layout->addWidget(box);
+    box2->setFlat(true);
+    m_scrollAreaLayout->addWidget(box);
+    m_scrollAreaLayout->addWidget(box2);
 
-    auto* vboxLayout = new QVBoxLayout();
-    box->setLayout(vboxLayout);
+    auto* hboxLayout = new QHBoxLayout();
+    auto* hboxLayoutKey = new QHBoxLayout();
+    box->setLayout(hboxLayout);
+    box2->setLayout(hboxLayoutKey);
+
 
     m_serverTPU = new QLineEdit(this);
     QString foreground = this->palette().windowText().color().name();
@@ -592,27 +594,22 @@ void GeneralConf::initServerTPU()
             &QLineEdit::editingFinished,
             this,
             &GeneralConf::serverTPUEdited);
-    vboxLayout->addWidget(m_serverTPU);
-}
 
-void GeneralConf::initUploadTokenTPU()
-{
-    auto* box = new QGroupBox(tr("PrivateUploader API Key"));
-    box->setFlat(true);
-    m_layout->addWidget(box);
-
-    auto* vboxLayout = new QVBoxLayout();
-    box->setLayout(vboxLayout);
+    auto* label = new QLabel(tr("Server URL"), this);
+    hboxLayout->addWidget(m_serverTPU);
+    hboxLayout->addWidget(label);
 
     m_uploadToken = new QLineEdit(this);
-    QString foreground = this->palette().windowText().color().name();
     m_uploadToken->setStyleSheet(QStringLiteral("color: %1").arg(foreground));
     m_uploadToken->setText(ConfigHandler().uploadTokenTPU());
     connect(m_uploadToken,
             &QLineEdit::editingFinished,
             this,
             &GeneralConf::uploadTokenTPUEdited);
-    vboxLayout->addWidget(m_uploadToken);
+
+    auto* labelAPIKey = new QLabel(tr("API Key"), this);
+    hboxLayoutKey->addWidget(m_uploadToken);
+    hboxLayoutKey->addWidget(labelAPIKey);
 }
 
 void GeneralConf::initWindowOffsets()
@@ -653,6 +650,34 @@ void GeneralConf::initWindowOffsets()
     posX->addWidget(m_uploadWindowOffsetX);
     posX->addWidget(posXLabel);
 
+    auto* scaleW = new QHBoxLayout();
+    auto* scaleWLabel = new QLabel(tr("Window Width (px)"), this);
+    m_uploadWindowScaleWidth = new QSpinBox(this);
+    m_uploadWindowScaleWidth->setMinimum(0);
+    m_uploadWindowScaleWidth->setMaximum(9999);
+    m_uploadWindowScaleWidth->setValue(ConfigHandler().uploadWindowScaleWidth());
+    scaleW->addWidget(m_uploadWindowScaleWidth);
+    scaleW->addWidget(scaleWLabel);
+
+    auto* scaleH = new QHBoxLayout();
+    auto* scaleHLabel = new QLabel(tr("Window Height (px)"), this);
+    m_uploadWindowScaleHeight = new QSpinBox(this);
+    m_uploadWindowScaleHeight->setMinimum(0);
+    m_uploadWindowScaleHeight->setMaximum(9999);
+    m_uploadWindowScaleHeight->setValue(ConfigHandler().uploadWindowScaleHeight());
+    scaleH->addWidget(m_uploadWindowScaleHeight);
+    scaleH->addWidget(scaleHLabel);
+
+    auto* imageW = new QHBoxLayout();
+    auto* imageWLabel = new QLabel(tr("Preview Image Width (px)"), this);
+    m_uploadWindowImageWidth = new QSpinBox(this);
+    m_uploadWindowImageWidth->setMinimum(0);
+    m_uploadWindowImageWidth->setMaximum(9999);
+    m_uploadWindowImageWidth->setValue(ConfigHandler().uploadWindowImageWidth());
+    imageW->addWidget(m_uploadWindowImageWidth);
+    imageW->addWidget(imageWLabel);
+
+
     QString foreground = this->palette().windowText().color().name();
     m_uploadWindowOffsetY->setStyleSheet(
       QStringLiteral("color: %1").arg(foreground));
@@ -677,6 +702,23 @@ void GeneralConf::initWindowOffsets()
       ConfigHandler().uploadWindowStackPadding());
     stackPadding->addWidget(m_uploadWindowStackPadding);
     stackPadding->addWidget(stackPaddingLabel);
+
+    auto* displayLayout = new QHBoxLayout();
+    auto* displayLabel = new QLabel(tr("Display"), this);
+    m_selectDisplay = new QComboBox(this);
+    m_selectDisplay->addItem(tr("Primary (Default)"), -1);
+
+    QList<QScreen*> screens = QGuiApplication::screens();
+
+    for (int i = 0; i < screens.size(); ++i) {
+        QString screenName = screens[i]->name();
+        m_selectDisplay->addItem(screenName, i);
+    }
+
+    m_selectDisplay->setCurrentIndex(ConfigHandler().uploadWindowDisplay() + 1);
+
+    displayLayout->addWidget(m_selectDisplay);
+    displayLayout->addWidget(displayLabel);
 
     connect(m_uploadWindowOffsetY,
             static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
@@ -703,6 +745,26 @@ void GeneralConf::initWindowOffsets()
             this,
             &GeneralConf::uploadWindowEnabledEdited);
 
+    connect(m_uploadWindowScaleWidth,
+            static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this,
+            &GeneralConf::uploadWindowScaleWidthEdited);
+
+    connect(m_uploadWindowScaleHeight,
+            static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this,
+            &GeneralConf::uploadWindowScaleHeightEdited);
+
+    connect(m_uploadWindowImageWidth,
+            static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this,
+            &GeneralConf::uploadWindowImageWidthEdited);
+
+    connect(m_selectDisplay,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this,
+            &GeneralConf::uploadWindowDisplayEdited);
+
     // reset button
     auto* resetButton = new QPushButton(tr("Reset Window Options"), this);
     connect(resetButton, &QPushButton::clicked, this, [this]() {
@@ -710,6 +772,9 @@ void GeneralConf::initWindowOffsets()
         m_uploadWindowOffsetX->setValue(10);
         m_uploadWindowTimeout->setValue(25000);
         m_uploadWindowStackPadding->setValue(25);
+        m_uploadWindowScaleWidth->setValue(580);
+        m_uploadWindowScaleHeight->setValue(120);
+        m_uploadWindowImageWidth->setValue(125);
     });
 
     auto* testButton = new QPushButton(tr("Test Window"), this);
@@ -730,8 +795,12 @@ void GeneralConf::initWindowOffsets()
     vboxLayout->addWidget(uploadWindowEnabledWarning);
     vboxLayout->addLayout(posY);
     vboxLayout->addLayout(posX);
+    vboxLayout->addLayout(scaleW);
+    vboxLayout->addLayout(scaleH);
+    vboxLayout->addLayout(imageW);
     vboxLayout->addLayout(timeout);
     vboxLayout->addLayout(stackPadding);
+    vboxLayout->addLayout(displayLayout);
     vboxLayout->addWidget(resetButton);
     vboxLayout->addWidget(testButton);
 }
@@ -763,6 +832,24 @@ void GeneralConf::uploadWindowOffsetXEdited()
       m_uploadWindowOffsetX->text().toInt());
 }
 
+void GeneralConf::uploadWindowScaleWidthEdited()
+{
+    ConfigHandler().setUploadWindowScaleWidth(
+      m_uploadWindowScaleWidth->text().toDouble());
+}
+
+void GeneralConf::uploadWindowScaleHeightEdited()
+{
+    ConfigHandler().setUploadWindowScaleHeight(
+      m_uploadWindowScaleHeight->text().toDouble());
+}
+
+void GeneralConf::uploadWindowImageWidthEdited()
+{
+    ConfigHandler().setUploadWindowImageWidth(
+      m_uploadWindowImageWidth->text().toDouble());
+}
+
 void GeneralConf::uploadWindowTimeoutEdited()
 {
     ConfigHandler().setUploadWindowTimeout(
@@ -780,6 +867,12 @@ void GeneralConf::uploadWindowEnabledEdited(bool checked)
     ConfigHandler().setUploadWindowEnabled(checked);
 }
 
+void GeneralConf::uploadWindowDisplayEdited()
+{
+    ConfigHandler().setUploadWindowDisplay(
+      m_selectDisplay->currentData().toInt());
+}
+
 void GeneralConf::uploadHistoryMaxChanged(int max)
 {
     ConfigHandler().setUploadHistoryMax(max);
@@ -787,26 +880,24 @@ void GeneralConf::uploadHistoryMaxChanged(int max)
 
 void GeneralConf::initUndoLimit()
 {
-    auto* box = new QGroupBox(tr("Undo limit"));
-    box->setFlat(true);
-    m_layout->addWidget(box);
-
-    auto* vboxLayout = new QVBoxLayout();
-    box->setLayout(vboxLayout);
-
+    auto* layout = new QHBoxLayout();
+    auto* layoutLabel = new QLabel(tr("Undo limit"), this);
     m_undoLimit = new QSpinBox(this);
     m_undoLimit->setMinimum(1);
     m_undoLimit->setMaximum(999);
     QString foreground = this->palette().windowText().color().name();
     m_undoLimit->setStyleSheet(QStringLiteral("color: %1").arg(foreground));
+    layout->addWidget(m_undoLimit);
+    layout->addWidget(layoutLabel);
 
     connect(m_undoLimit,
             static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
             this,
             &GeneralConf::undoLimit);
 
-    vboxLayout->addWidget(m_undoLimit);
+    m_scrollAreaLayout->addLayout(layout);
 }
+
 
 void GeneralConf::undoLimit(int limit)
 {
@@ -951,12 +1042,11 @@ void GeneralConf::initShowSelectionGeometry()
 
     auto* box = new QGroupBox(tr("Selection Geometry Display"));
     box->setFlat(true);
-    m_layout->addWidget(box);
+    m_scrollAreaLayout->addWidget(box);
 
     auto* vboxLayout = new QVBoxLayout();
     box->setLayout(vboxLayout);
     auto* selGeoLayout = new QHBoxLayout();
-    selGeoLayout->addWidget(new QLabel(tr("Display Location")));
     m_selectGeometryLocation = new QComboBox(this);
 
     m_selectGeometryLocation->addItem(tr("None"), GeneralConf::xywh_none);
@@ -982,6 +1072,7 @@ void GeneralConf::initShowSelectionGeometry()
       &GeneralConf::setGeometryLocation);
 
     selGeoLayout->addWidget(m_selectGeometryLocation);
+    selGeoLayout->addWidget(new QLabel(tr("Display Location")));
     vboxLayout->addLayout(selGeoLayout);
     vboxLayout->addStretch();
 }

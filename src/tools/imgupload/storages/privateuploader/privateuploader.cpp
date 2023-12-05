@@ -58,7 +58,7 @@ void PrivateUploader::handleReply(QNetworkReply* reply)
 
         emit uploadOk(imageURL());
     } else {
-        setInfoLabelText(reply->errorString());
+        emit uploadError(reply);
     }
     new QShortcut(Qt::Key_Escape, this, SLOT(close()));
 }
@@ -72,6 +72,10 @@ void PrivateUploader::upload()
     PrivateUploaderUpload* uploader = new PrivateUploaderUpload(this);
     connect(uploader,
             &PrivateUploaderUpload::uploadOk,
+            this,
+            &PrivateUploader::handleReply);
+    connect(uploader,
+            &PrivateUploaderUpload::uploadError,
             this,
             &PrivateUploader::handleReply);
     const QString& fileName =

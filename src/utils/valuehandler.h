@@ -147,6 +147,18 @@ private:
     int m_min, m_def;
 };
 
+class LowerBoundedDouble : public ValueHandler
+{
+public:
+    LowerBoundedDouble(double min, double def);
+    bool check(const QVariant& val) override;
+    QVariant fallback() override;
+    QString expected() override;
+
+private:
+    int m_min, m_def;
+};
+
 class KeySequence : public ValueHandler
 {
 public:

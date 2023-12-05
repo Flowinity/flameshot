@@ -25,7 +25,7 @@ public slots:
 
 signals:
     void uploadOk(QNetworkReply* reply);
-    void uploadError(const QString& error);
+    void uploadError(QNetworkReply* error);
     void uploadProgress(int progress);
 
 private:

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QDoubleSpinBox>
 #include <QScrollArea>
 #include <QWidget>
 
@@ -91,7 +92,6 @@ private:
     void initUseJpgForClipboard();
     void initUploadHistoryMax();
     void initUploadClientSecret();
-    void initUploadTokenTPU();
     void initServerTPU();
     void initSaveLastRegion();
     void initShowSelectionGeometry();
@@ -129,6 +129,9 @@ private:
     QSpinBox* m_uploadWindowOffsetX;
     QSpinBox* m_uploadWindowTimeout;
     QSpinBox* m_uploadWindowStackPadding;
+    QSpinBox* m_uploadWindowScaleWidth;
+    QSpinBox* m_uploadWindowScaleHeight;
+    QSpinBox* m_uploadWindowImageWidth;
     QCheckBox* m_uploadWindowEnabled;
     QLineEdit* m_uploadToken;
     QLineEdit* m_serverTPU;
@@ -147,10 +150,15 @@ private:
     QComboBox* m_selectGeometryLocation;
     QSpinBox* m_xywhTimeout;
     QSpinBox* m_jpegQuality;
+    QComboBox* m_selectDisplay;
     void uploadWindowOffsetYEdited();
     void uploadWindowOffsetXEdited();
     void initWindowOffsets();
     void uploadWindowTimeoutEdited();
     void uploadWindowStackPaddingEdited();
     void uploadWindowEnabledEdited(bool checked);
+    void uploadWindowScaleHeightEdited();
+    void uploadWindowScaleWidthEdited();
+    void uploadWindowImageWidthEdited();
+    void uploadWindowDisplayEdited();
 };
