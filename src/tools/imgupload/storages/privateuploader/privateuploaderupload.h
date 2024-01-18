@@ -22,6 +22,12 @@ public slots:
     void uploadBytes(const QByteArray& byteArray,
                      const QString& fileName,
                      const QString& fileType);
+    void uploadToServer(const QByteArray& postData,
+                        const QString& url,
+                        const QString& token);
+    void uploadFile(const QString& filePath,
+                    const QString& fileName,
+                    const QString& fileType);
 
 signals:
     void uploadOk(QNetworkReply* reply);

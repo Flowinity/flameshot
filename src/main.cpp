@@ -618,7 +618,7 @@ int main(int argc, char* argv[])
 
         // upload the file and initialize new PrivateUploader
         PrivateUploaderUpload* uploader = new PrivateUploaderUpload();
-        uploader->uploadBytes(byteArray, fileName, fileType);
+        uploader->uploadFile(path, fileName, fileType);
 
         QObject::connect(
           uploader, &PrivateUploaderUpload::uploadOk, [](QNetworkReply* reply) {

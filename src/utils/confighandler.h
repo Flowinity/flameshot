@@ -141,6 +141,12 @@ public:
                          int)
     CONFIG_GETTER_SETTER(uploadWindowEnabled, setUploadWindowEnabled, bool)
     CONFIG_GETTER_SETTER(uploadWindowDisplay, setUploadWindowDisplay, int)
+    CONFIG_GETTER_SETTER(uploadWindowImageEnabled,
+                         setUploadWindowImageEnabled,
+                         bool)
+    CONFIG_GETTER_SETTER(uploadWindowButtonsEnabled,
+                         setUploadWindowButtonsEnabled,
+                         bool)
     CONFIG_GETTER_SETTER(saveLastRegion, setSaveLastRegion, bool)
     CONFIG_GETTER_SETTER(showSelectionGeometry, setShowSelectionGeometry, int)
     CONFIG_GETTER_SETTER(jpegQuality, setJpegQuality, int)

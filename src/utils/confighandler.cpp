@@ -124,7 +124,7 @@ static QMap<class QString, QSharedPointer<ValueHandler>>
     OPTION("copyOnDoubleClick"           ,Bool               ( false         )),
     OPTION("uploadClientSecret"          ,String             ( "313baf0c7b4d3ff"            )),
     OPTION("uploadTokenTPU"              ,String             ( "")),
-    OPTION("serverTPU"                   ,String             ( "https://privateuploader.com")),
+    OPTION("serverTPU"                   ,String             ( "https://flowinity.com")),
     OPTION("uploadWindowTimeout"         ,LowerBoundedInt (0, 25000)),
     OPTION("uploadWindowOffsetY"         ,LowerBoundedInt (-99999, 100)),
     OPTION("uploadWindowOffsetX"         ,LowerBoundedInt (-99999, 10)),
@@ -134,6 +134,9 @@ static QMap<class QString, QSharedPointer<ValueHandler>>
     OPTION("uploadWindowScaleHeight"     ,LowerBoundedInt(0, 120)),
     OPTION("uploadWindowImageWidth"      ,LowerBoundedInt(0, 125)),
     OPTION("uploadWindowDisplay"         ,LowerBoundedInt             ( -1, -1     )),
+    OPTION("uploadWindowImageEnabled", Bool               ( true          )),
+    OPTION("uploadWindowButtonsEnabled", Bool               ( true          )),
+    OPTION("uploadWindowPreviewWidth"    ,LowerBoundedInt(0, 125)),
     OPTION("showSelectionGeometry"  , BoundedInt               (0,5,4)),
     OPTION("showSelectionGeometryHideTime", LowerBoundedInt       (0, 3000)),
     OPTION("jpegQuality", BoundedInt     (0,100,75))

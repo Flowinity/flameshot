@@ -230,13 +230,22 @@ void ImgUploaderBase::showPostUploadDialog(int open) {
 
     QHBoxLayout* imageAndUrlLayout = new QHBoxLayout;
 
-    auto* imageLabel = new ImageLabel();
-    imageLabel->setScreenshot(m_pixmap);
-    imageLabel->setFixedSize(ConfigHandler().uploadWindowImageWidth(), ConfigHandler().uploadWindowScaleHeight() - 20);
-    imageLabel->setCursor(QCursor(Qt::PointingHandCursor));
-    imageLabel->setContentsMargins(10, 0, 10, 0);
+    if(ConfigHandler().uploadWindowImageEnabled()) {
+        auto* imageLabel = new ImageLabel();
 
-    imageAndUrlLayout->addWidget(imageLabel, 0, Qt::AlignCenter);
+        imageLabel->setScreenshot(
+          m_pixmap.scaled(ConfigHandler().uploadWindowImageWidth(),
+                          ConfigHandler().uploadWindowScaleHeight() - 20,
+                          Qt::KeepAspectRatio,
+                          Qt::SmoothTransformation));
+        imageLabel->setFixedSize(ConfigHandler().uploadWindowImageWidth(),
+                                 ConfigHandler().uploadWindowScaleHeight() -
+                                   20);
+        imageLabel->setCursor(QCursor(Qt::PointingHandCursor));
+        imageLabel->setContentsMargins(10, 0, 10, 0);
+
+        imageAndUrlLayout->addWidget(imageLabel, 0, Qt::AlignCenter);
+    }
 
     QVBoxLayout* urlAndButtonsLayout = new QVBoxLayout;
 
@@ -250,26 +259,40 @@ void ImgUploaderBase::showPostUploadDialog(int open) {
     closeButtonAndLabelLayout->setAlignment(m_closeButton, Qt::AlignRight);
     closeButtonAndLabelLayout->setAlignment(m_label, Qt::AlignLeft);
 
-
     urlAndButtonsLayout->addLayout(closeButtonAndLabelLayout);
 
-    QHBoxLayout* buttonsLayout = new QHBoxLayout;
-    m_copyUrlButton = new QPushButton(tr("Copy URL"));
-    m_openUrlButton = new QPushButton(tr("Open URL"));
-    m_toClipboardButton = new QPushButton(tr("Copy Image"));
-    m_saveToFilesystemButton = new QPushButton(tr("Save Image"));
+    if(ConfigHandler().uploadWindowButtonsEnabled()) {
+        QHBoxLayout* buttonsLayout = new QHBoxLayout;
+        m_copyUrlButton = new QPushButton(tr("Copy URL"));
+        m_openUrlButton = new QPushButton(tr("Open URL"));
+        m_toClipboardButton = new QPushButton(tr("Copy Image"));
+        m_saveToFilesystemButton = new QPushButton(tr("Save Image"));
 
-    buttonsLayout->addWidget(m_copyUrlButton);
-    buttonsLayout->addWidget(m_openUrlButton);
-    buttonsLayout->addWidget(m_toClipboardButton);
-    buttonsLayout->addWidget(m_saveToFilesystemButton);
+        buttonsLayout->addWidget(m_copyUrlButton);
+        buttonsLayout->addWidget(m_openUrlButton);
+        buttonsLayout->addWidget(m_toClipboardButton);
+        buttonsLayout->addWidget(m_saveToFilesystemButton);
 
-    connect(m_copyUrlButton, &QPushButton::clicked, this, &ImgUploaderBase::copyURL);
-    connect(m_openUrlButton, &QPushButton::clicked, this, &ImgUploaderBase::openURL);
-    connect(m_toClipboardButton, &QPushButton::clicked, this, &ImgUploaderBase::copyImage);
-    connect(m_saveToFilesystemButton, &QPushButton::clicked, this, &ImgUploaderBase::saveScreenshotToFilesystem);
+        connect(m_copyUrlButton,
+                &QPushButton::clicked,
+                this,
+                &ImgUploaderBase::copyURL);
+        connect(m_openUrlButton,
+                &QPushButton::clicked,
+                this,
+                &ImgUploaderBase::openURL);
+        connect(m_toClipboardButton,
+                &QPushButton::clicked,
+                this,
+                &ImgUploaderBase::copyImage);
+        connect(m_saveToFilesystemButton,
+                &QPushButton::clicked,
+                this,
+                &ImgUploaderBase::saveScreenshotToFilesystem);
 
-    urlAndButtonsLayout->addLayout(buttonsLayout);
+        urlAndButtonsLayout->addLayout(buttonsLayout);
+    }
+
     imageAndUrlLayout->addLayout(urlAndButtonsLayout);
 
     m_vLayout->addLayout(imageAndUrlLayout);

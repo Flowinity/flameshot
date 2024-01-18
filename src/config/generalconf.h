@@ -132,6 +132,8 @@ private:
     QSpinBox* m_uploadWindowScaleWidth;
     QSpinBox* m_uploadWindowScaleHeight;
     QSpinBox* m_uploadWindowImageWidth;
+    QCheckBox* m_uploadWindowImageEnabled;
+    QCheckBox* m_uploadWindowButtonsEnabled;
     QCheckBox* m_uploadWindowEnabled;
     QLineEdit* m_uploadToken;
     QLineEdit* m_serverTPU;
@@ -161,4 +163,6 @@ private:
     void uploadWindowScaleWidthEdited();
     void uploadWindowImageWidthEdited();
     void uploadWindowDisplayEdited();
+    void uploadWindowImageEnabledEdited(bool checked);
+    void uploadWindowButtonsEnabledEdited(bool checked);
 };

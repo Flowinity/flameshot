@@ -441,6 +441,7 @@ void Flameshot::setExternalWidget(bool b)
 {
     m_haveExternalWidget = b;
 }
+
 bool Flameshot::haveExternalWidget()
 {
     return m_haveExternalWidget;

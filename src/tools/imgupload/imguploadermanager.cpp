@@ -29,7 +29,7 @@ void ImgUploaderManager::init()
     //    m_qstrUrl = "https://imgur.com/";
     //    m_imgUploaderPlugin = "imgur";
     //}
-    m_urlString = "https://privateuploader.com/";
+    m_urlString = "https://flowinity.com/";
     m_imgUploaderPlugin = "privateuploader";
 }
 

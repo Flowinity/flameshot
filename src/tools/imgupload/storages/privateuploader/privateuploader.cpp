@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// SPDX-FileCopyrightText: 2017-2019 Alejandro Sirgo Rica & Contributors
+// SPDX-FileCopyrightText: 2023 Troplo & Contributors
 
 #include "privateuploader.h"
 #include "privateuploaderupload.h"
@@ -72,8 +72,10 @@ void PrivateUploader::upload()
     PrivateUploaderUpload* uploader = new PrivateUploaderUpload(this);
     connect(uploader,
             &PrivateUploaderUpload::uploadOk,
-            this,
-            &PrivateUploader::handleReply);
+            [this, uploader, &buffer](QNetworkReply* reply) {
+                handleReply(reply);
+                uploader->deleteLater();
+            });
     connect(uploader,
             &PrivateUploaderUpload::uploadError,
             this,
@@ -83,6 +85,8 @@ void PrivateUploader::upload()
         ? FileNameHandler().parsedPattern()
         : FileNameHandler().parsedPattern() + ".png";
     uploader->uploadBytes(byteArray, fileName, "image/png");
+    buffer.close();
+    byteArray.clear();
 
     connect(uploader,
             &PrivateUploaderUpload::uploadProgress,

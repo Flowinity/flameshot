@@ -573,7 +573,7 @@ void GeneralConf::initUploadClientSecret()
 
 void GeneralConf::initServerTPU()
 {
-    auto* box = new QGroupBox(tr("PrivateUploader"));
+    auto* box = new QGroupBox(tr("Flowinity"));
     auto* box2 = new QGroupBox();
     box->setFlat(true);
     box2->setFlat(true);
@@ -668,6 +668,12 @@ void GeneralConf::initWindowOffsets()
     scaleH->addWidget(m_uploadWindowScaleHeight);
     scaleH->addWidget(scaleHLabel);
 
+    auto* imageToggle = new QHBoxLayout();
+    m_uploadWindowImageEnabled =
+      new QCheckBox(tr("Enable Preview Image"), this);
+    m_uploadWindowImageEnabled->setChecked(ConfigHandler().uploadWindowImageEnabled());
+    imageToggle->addWidget(m_uploadWindowImageEnabled);
+
     auto* imageW = new QHBoxLayout();
     auto* imageWLabel = new QLabel(tr("Preview Image Width (px)"), this);
     m_uploadWindowImageWidth = new QSpinBox(this);
@@ -702,6 +708,12 @@ void GeneralConf::initWindowOffsets()
       ConfigHandler().uploadWindowStackPadding());
     stackPadding->addWidget(m_uploadWindowStackPadding);
     stackPadding->addWidget(stackPaddingLabel);
+
+    auto* buttonsToggle = new QHBoxLayout();
+    m_uploadWindowButtonsEnabled =
+      new QCheckBox(tr("Enable Action Buttons"), this);
+    m_uploadWindowButtonsEnabled->setChecked(ConfigHandler().uploadWindowButtonsEnabled());
+    buttonsToggle->addWidget(m_uploadWindowButtonsEnabled);
 
     auto* displayLayout = new QHBoxLayout();
     auto* displayLabel = new QLabel(tr("Display"), this);
@@ -765,6 +777,16 @@ void GeneralConf::initWindowOffsets()
             this,
             &GeneralConf::uploadWindowDisplayEdited);
 
+    connect(m_uploadWindowImageEnabled,
+            &QCheckBox::clicked,
+            this,
+            &GeneralConf::uploadWindowImageEnabledEdited);
+
+    connect(m_uploadWindowButtonsEnabled,
+            &QCheckBox::clicked,
+            this,
+            &GeneralConf::uploadWindowButtonsEnabledEdited);
+
     // reset button
     auto* resetButton = new QPushButton(tr("Reset Window Options"), this);
     connect(resetButton, &QPushButton::clicked, this, [this]() {
@@ -797,9 +819,11 @@ void GeneralConf::initWindowOffsets()
     vboxLayout->addLayout(posX);
     vboxLayout->addLayout(scaleW);
     vboxLayout->addLayout(scaleH);
+    vboxLayout->addLayout(imageToggle);
     vboxLayout->addLayout(imageW);
     vboxLayout->addLayout(timeout);
     vboxLayout->addLayout(stackPadding);
+    vboxLayout->addLayout(buttonsToggle);
     vboxLayout->addLayout(displayLayout);
     vboxLayout->addWidget(resetButton);
     vboxLayout->addWidget(testButton);
@@ -871,6 +895,19 @@ void GeneralConf::uploadWindowDisplayEdited()
 {
     ConfigHandler().setUploadWindowDisplay(
       m_selectDisplay->currentData().toInt());
+}
+
+void GeneralConf::uploadWindowImageEnabledEdited(bool checked)
+{
+    // disable the upload window width spinbox if the image is disabled
+    m_uploadWindowImageWidth->setDisabled(!checked);
+
+    ConfigHandler().setUploadWindowImageEnabled(checked);
+}
+
+void GeneralConf::uploadWindowButtonsEnabledEdited(bool checked)
+{
+    ConfigHandler().setUploadWindowButtonsEnabled(checked);
 }
 
 void GeneralConf::uploadHistoryMaxChanged(int max)
