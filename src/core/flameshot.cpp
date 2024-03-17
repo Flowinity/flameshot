@@ -126,9 +126,12 @@ CaptureWidget* Flameshot::gui(const CaptureRequest& req)
         m_captureWindow->showFullScreen();
 //        m_captureWindow->show(); // For CaptureWidget Debugging under Linux
 #endif
+
+        isRequested = false;
         return m_captureWindow;
     } else {
         emit captureFailed();
+        isRequested = false;
         return nullptr;
     }
 }
@@ -170,8 +173,10 @@ void Flameshot::screen(CaptureRequest req, const int screenNumber)
             req.addPinTask(region);
         }
         exportCapture(p, geometry, req);
+        isRequested = false;
     } else {
         emit captureFailed();
+        isRequested = false;
     }
 }
 
@@ -190,8 +195,10 @@ void Flameshot::full(const CaptureRequest& req)
     if (ok) {
         QRect selection; // `flameshot full` does not support --selection
         exportCapture(p, selection, req);
+        isRequested = false;
     } else {
         emit captureFailed();
+        isRequested = false;
     }
 }
 
@@ -305,11 +312,20 @@ bool Flameshot::resolveAnyConfigErrors()
     return resolved;
 }
 
+bool Flameshot::isRequested = false;
+
 void Flameshot::requestCapture(const CaptureRequest& request)
 {
     if (!resolveAnyConfigErrors()) {
         return;
     }
+
+    if(isRequested) {
+        AbstractLogger::info() << "Another capture request is already in progress. Will not start another capture instance until it's complete.";
+        return;
+    }
+
+    isRequested = true;
 
     switch (request.captureMode()) {
         case CaptureRequest::FULLSCREEN_MODE:

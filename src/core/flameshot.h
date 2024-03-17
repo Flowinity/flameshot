@@ -23,6 +23,7 @@ class Flameshot : public QObject
     Q_OBJECT
 
 public:
+    static bool isRequested;
     enum Origin
     {
         CLI,
