@@ -137,6 +137,19 @@ int main(int argc, char* argv[])
     wayland_hacks();
 #endif
 
+    // We need to init QSettings but the Qt application is not yet created
+    // so we need to do it manually
+    QSettings settings = QSettings(QSettings::IniFormat,
+                                   QSettings::UserScope,
+                                   QStringLiteral("flameshot"),
+                                   QStringLiteral("flameshot"));
+    // get the "platform" key from the settings
+    const QString platform = settings.value(QStringLiteral("platform"), QStringLiteral("default")).toString();
+    if(platform != "default" && !platform.isEmpty()) {
+        AbstractLogger::info() << "Setting QT_QPA_PLATFORM to " + platform;
+        qputenv("QT_QPA_PLATFORM", platform.toUtf8());
+    }
+
     // required for the button serialization
     // TODO: change to QVector in v1.0
     qRegisterMetaTypeStreamOperators<QList<int>>("QList<int>");

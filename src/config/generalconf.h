@@ -61,7 +61,6 @@ private slots:
     void setGeometryLocation(int index);
     void setSelGeoHideTime(int v);
     void setJpegQuality(int v);
-
 private:
     const QString chooseFolder(const QString& currentPath = "");
 
@@ -153,6 +152,7 @@ private:
     QSpinBox* m_xywhTimeout;
     QSpinBox* m_jpegQuality;
     QComboBox* m_selectDisplay;
+    QComboBox* m_selectPlatform;
     void uploadWindowOffsetYEdited();
     void uploadWindowOffsetXEdited();
     void initWindowOffsets();
@@ -165,4 +165,5 @@ private:
     void uploadWindowDisplayEdited();
     void uploadWindowImageEnabledEdited(bool checked);
     void uploadWindowButtonsEnabledEdited(bool checked);
+    void initCustomEnv();
 };

@@ -153,6 +153,7 @@ public:
     CONFIG_GETTER_SETTER(showSelectionGeometryHideTime,
                          showSelectionGeometryHideTime,
                          int)
+    CONFIG_GETTER_SETTER(platform, setPlatform, QString)
 
     // SPECIAL CASES
     bool startupLaunch();

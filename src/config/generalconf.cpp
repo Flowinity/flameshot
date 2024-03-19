@@ -53,6 +53,7 @@ GeneralConf::GeneralConf(QWidget* parent)
     initUseJpgForClipboard();
     initCopyOnDoubleClick();
     initServerTPU();
+    initCustomEnv();
     initWindowOffsets();
     initSaveAfterCopy();
     initCopyPathAfterSave();
@@ -369,9 +370,9 @@ void GeneralConf::initCheckForUpdates()
 void GeneralConf::initAllowMultipleGuiInstances()
 {
     m_allowMultipleGuiInstances = new QCheckBox(
-      tr("Allow multiple flameshot GUI instances simultaneously"), this);
+      tr("Allow multiple Flowshot GUI instances simultaneously"), this);
     m_allowMultipleGuiInstances->setToolTip(tr(
-      "This allows you to take screenshots of Flameshot itself for example"));
+      "This allows you to take screenshots of Flowshot itself for example"));
     m_scrollAreaLayout->addWidget(m_allowMultipleGuiInstances);
     connect(m_allowMultipleGuiInstances,
             &QCheckBox::clicked,
@@ -396,7 +397,7 @@ void GeneralConf::initAutostart()
 {
     m_autostart = new QCheckBox(tr("Launch in background at startup"), this);
     m_autostart->setToolTip(tr(
-      "Launch Flameshot daemon (background process) when computer is booted"));
+      "Launch Flowshot daemon (background process) when computer is booted"));
     m_scrollAreaLayout->addWidget(m_autostart);
 
     connect(
@@ -612,6 +613,37 @@ void GeneralConf::initServerTPU()
     hboxLayoutKey->addWidget(labelAPIKey);
 }
 
+void GeneralConf::initCustomEnv() {
+    auto* box = new QGroupBox(tr("Force Qt Platform"));
+    box->setFlat(true);
+    m_scrollAreaLayout->addWidget(box);
+
+    auto* vboxLayout = new QVBoxLayout();
+    box->setLayout(vboxLayout);
+
+    auto* platformLayout = new QHBoxLayout();
+    m_selectPlatform = new QComboBox(this);
+    m_selectPlatform->addItem(tr("System (default)"), "default");
+    m_selectPlatform->addItem(tr("Wayland"), "wayland");
+    m_selectPlatform->addItem(tr("X11 (XCB, Xwayland)"), "xcb");
+    m_selectPlatform->setCurrentIndex(m_selectPlatform->findData(ConfigHandler().platform()));
+    platformLayout->addWidget(m_selectPlatform);
+    auto* platformWarning =
+      new QLabel(tr("This setting requires a restart of "
+                        "Flowshot to take effect.\n\nYou may opt to force X11/XCB mode if you have issues with multiple displays or the upload notification window under Wayland.\n\nSetting it to \"default\" will use the default environment variable QT_QPA_PLATFORM."),
+                 this);
+    platformWarning->setWordWrap(true);
+    connect(m_selectPlatform,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this,
+            [this](int index) {
+                QString platform = m_selectPlatform->itemData(index).toString();
+                ConfigHandler().setPlatform(platform);
+            });
+    vboxLayout->addLayout(platformLayout);
+    vboxLayout->addWidget(platformWarning);
+}
+
 void GeneralConf::initWindowOffsets()
 {
     auto* box = new QGroupBox(tr("Upload Notification Settings"));
@@ -628,7 +660,7 @@ void GeneralConf::initWindowOffsets()
     auto* uploadWindowEnabledWarning =
       new QLabel(tr("WAYLAND USERS: This upload notification window does not "
                     "currently function correctly under Wayland. Please "
-                    "disable if you experience problems and use Wayland."),
+                    "disable or force X11 (XCB) mode in Force Qt Platform."),
                  this);
     uploadWindowEnabledWarning->setWordWrap(true);
 

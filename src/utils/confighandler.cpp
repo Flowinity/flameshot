@@ -139,7 +139,8 @@ static QMap<class QString, QSharedPointer<ValueHandler>>
     OPTION("uploadWindowPreviewWidth"    ,LowerBoundedInt(0, 125)),
     OPTION("showSelectionGeometry"  , BoundedInt               (0,5,4)),
     OPTION("showSelectionGeometryHideTime", LowerBoundedInt       (0, 3000)),
-    OPTION("jpegQuality", BoundedInt     (0,100,75))
+    OPTION("jpegQuality", BoundedInt     (0,100,75)),
+    OPTION("platform", String            ( "default"            )),
 };
 
 static QMap<QString, QSharedPointer<KeySequence>> recognizedShortcuts = {
