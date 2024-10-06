@@ -13,7 +13,7 @@ int GlobalValues::buttonBaseSize()
 QString GlobalValues::versionInfo()
 {
     return QStringLiteral("Flowinity Flowshot " APP_VERSION " (" FLAMESHOT_GIT_HASH ")"
-                          "\n(Fork of Flameshot v6)"
+                          "\n(Fork of Flameshot. Flowshot and Flowinity are not affiliated with the Flameshot project)"
                           "\nCompiled with Qt " QT_VERSION_STR);
 }
 
