@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: 2023 Troplo & Contributors
 
 #include "privateuploaderupload.h"
+#include "flowinity/EndpointsJSON.h"
 #include "src/utils/confighandler.h"
 #include "src/utils/filenamehandler.h"
 #include <QDesktopServices>
@@ -15,13 +16,13 @@
 #include <QNetworkRequest>
 #include <QShortcut>
 #include <QUrlQuery>
-#include <iostream>
 #include <QtGlobal>
-
+#include <iostream>
+#include "abstractlogger.h"
 PrivateUploaderUpload::PrivateUploaderUpload(QObject* parent)
   : QObject(parent)
   , m_NetworkAM(
-      new QNetworkAccessManager(this)) // Initialize member in the constructor
+      new QNetworkAccessManager(this))
 {}
 
 QByteArray const boundary = "BoUnDaRy";
@@ -42,6 +43,8 @@ void PrivateUploaderUpload::uploadToServer(const QByteArray& postData, const QSt
         if (reply->error() == QNetworkReply::NoError) {
             emit uploadOk(reply);
         } else {
+            EndpointsJSON* endpoints = new EndpointsJSON(this);
+            endpoints->getAPIFromEndpoints(true);
             emit uploadError(reply);
         }
 
@@ -72,7 +75,7 @@ void PrivateUploaderUpload::uploadBytes(const QByteArray& byteArray, const QStri
     // Append the end of the form-data
     postData.append("--" + boundary + "--\r\n");
 
-    QString url = QStringLiteral("%1/api/v3/gallery").arg(ConfigHandler().serverTPU());
+    QString url = QStringLiteral("%1/gallery").arg(ConfigHandler().serverAPIEndpoint());
     QString token = QStringLiteral("%1").arg(ConfigHandler().uploadTokenTPU());
 
     uploadToServer(postData, url, token);
@@ -86,7 +89,7 @@ void PrivateUploaderUpload::uploadFile(const QString& filePath, const QString& f
         return;
     }
 
-    QString url = QStringLiteral("%1/api/v3/gallery").arg(ConfigHandler().serverTPU());
+    QString url = QStringLiteral("%1/gallery").arg(ConfigHandler().serverAPIEndpoint());
     QString token = QStringLiteral("%1").arg(ConfigHandler().uploadTokenTPU());
 
     QNetworkRequest request;
@@ -104,7 +107,7 @@ void PrivateUploaderUpload::uploadFile(const QString& filePath, const QString& f
 
     qint64 fileSize = file.size();
     qint64 bytesUploaded = 0;
-    qint64 chunkSize = 4096 * 4096; // Define your chunk size
+    qint64 chunkSize = 4096 * 4096;
 
     QNetworkAccessManager manager;
     QNetworkReply* reply = nullptr;

@@ -54,7 +54,9 @@ if (APPLE)
 
     add_executable(flameshot MACOSX_BUNDLE main.cpp ${APP_ICON_MACOSX})
 else ()
-    add_executable(flameshot)
+    add_executable(flameshot
+            tools/flowinity/EndpointsJSON.cpp
+            tools/flowinity/EndpointsJSON.h)
 endif ()
 
 add_executable(Flameshot::flameshot ALIAS flameshot)

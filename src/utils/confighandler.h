@@ -154,7 +154,12 @@ public:
                          showSelectionGeometryHideTime,
                          int)
     CONFIG_GETTER_SETTER(platform, setPlatform, QString)
-
+    // Endpoints
+    CONFIG_GETTER_SETTER(serverEndpoints, setServerEndpoints, QString)
+    CONFIG_GETTER_SETTER(serverAPIEndpoint, setServerAPIEndpoint, QString)
+    CONFIG_GETTER_SETTER(serverSupportsEndpoints,
+                         setServerSupportsEndpoints,
+                         bool)
     // SPECIAL CASES
     bool startupLaunch();
     void setStartupLaunch(const bool);

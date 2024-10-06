@@ -141,6 +141,11 @@ static QMap<class QString, QSharedPointer<ValueHandler>>
     OPTION("showSelectionGeometryHideTime", LowerBoundedInt       (0, 3000)),
     OPTION("jpegQuality", BoundedInt     (0,100,75)),
     OPTION("platform", String            ( "default"            )),
+
+    // Endpoints
+    OPTION("serverEndpoints", String("https://flowinity.com/endpoints.json")),
+    OPTION("serverAPIEndpoint", String("https://api.flowinity.com/v3")),
+    OPTION("serverSupportsEndpoints", Bool(true))
 };
 
 static QMap<QString, QSharedPointer<KeySequence>> recognizedShortcuts = {

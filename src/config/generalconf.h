@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "flowinity/EndpointsJSON.h"
 #include <QDoubleSpinBox>
 #include <QScrollArea>
 #include <QWidget>
@@ -56,6 +57,7 @@ private slots:
     void uploadClientKeyEdited();
     void uploadTokenTPUEdited();
     void serverTPUEdited();
+    void saveServerTPU();
     void useJpgForClipboardChanged(bool checked);
     void setSaveAsFileExtension(const QString& extension);
     void setGeometryLocation(int index);
@@ -153,6 +155,8 @@ private:
     QSpinBox* m_jpegQuality;
     QComboBox* m_selectDisplay;
     QComboBox* m_selectPlatform;
+    QLabel* m_flowinityErrorMessage;
+    EndpointsJSON* m_endpoints;
     void uploadWindowOffsetYEdited();
     void uploadWindowOffsetXEdited();
     void initWindowOffsets();

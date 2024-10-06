@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: 2017-2019 Alejandro Sirgo Rica & Contributors
 #include "generalconf.h"
+#include "flowinity/EndpointsJSON.h"
 #include "imgupload/imguploadermanager.h"
 #include "imgupload/storages/imguploaderbase.h"
 #include "src/utils/confighandler.h"
+#include "abstractlogger.h"
 #include <QCheckBox>
 #include <QComboBox>
 #include <QFile>
@@ -15,17 +17,18 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QScreen>
 #include <QSettings>
 #include <QSpinBox>
 #include <QStandardPaths>
 #include <QTextCodec>
 #include <QVBoxLayout>
-#include <QScreen>
 
 GeneralConf::GeneralConf(QWidget* parent)
   : QWidget(parent)
   , m_historyConfirmationToDelete(nullptr)
   , m_undoLimit(nullptr)
+  , m_endpoints(new EndpointsJSON())
 {
 
     m_scrollAreaLayout = new QVBoxLayout(this);
@@ -591,14 +594,28 @@ void GeneralConf::initServerTPU()
     QString foreground = this->palette().windowText().color().name();
     m_serverTPU->setStyleSheet(QStringLiteral("color: %1").arg(foreground));
     m_serverTPU->setText(ConfigHandler().serverTPU());
-    connect(m_serverTPU,
-            &QLineEdit::editingFinished,
-            this,
-            &GeneralConf::serverTPUEdited);
 
-    auto* label = new QLabel(tr("Server URL"), this);
-    hboxLayout->addWidget(m_serverTPU);
-    hboxLayout->addWidget(label);
+    m_flowinityErrorMessage = new QLabel(this);
+    m_flowinityErrorMessage->setWordWrap(true);
+    m_flowinityErrorMessage->setStyleSheet(QStringLiteral("color: %1").arg(foreground));
+    m_flowinityErrorMessage->setText("Flowinity auto-discovery status: ");
+
+    connect(m_serverTPU, &QLineEdit::editingFinished, this, &GeneralConf::serverTPUEdited);
+
+    QPushButton* saveButton = new QPushButton(tr("Test and Save"), this);
+    connect(saveButton, &QPushButton::clicked, this, &GeneralConf::saveServerTPU);
+
+    QHBoxLayout* inputLayout = new QHBoxLayout();
+    inputLayout->addWidget(m_serverTPU);
+    inputLayout->addWidget(saveButton);
+
+    QVBoxLayout* mainLayout = new QVBoxLayout();
+    auto* label = new QLabel(tr("Flowinity Server URL"), this);
+    mainLayout->addWidget(label);
+    mainLayout->addLayout(inputLayout);
+    mainLayout->addWidget(m_flowinityErrorMessage);
+
+    hboxLayout->addLayout(mainLayout);
 
     m_uploadToken = new QLineEdit(this);
     m_uploadToken->setStyleSheet(QStringLiteral("color: %1").arg(foreground));
@@ -608,9 +625,32 @@ void GeneralConf::initServerTPU()
             this,
             &GeneralConf::uploadTokenTPUEdited);
 
-    auto* labelAPIKey = new QLabel(tr("API Key"), this);
+    auto* labelAPIKey = new QLabel(tr("Flowinity API Key"), this);
     hboxLayoutKey->addWidget(m_uploadToken);
     hboxLayoutKey->addWidget(labelAPIKey);
+}
+
+void GeneralConf::saveServerTPU()
+{
+    AbstractLogger::info() << "Saving Flowinity server URL: " << m_serverTPU->text();
+    ConfigHandler().setServerTPU(m_serverTPU->text());
+    connect(m_endpoints,
+            &EndpointsJSON::endpointOk,
+            this,
+            [this](const QString& response) {
+                m_flowinityErrorMessage->setText("Flowinity auto-discovery endpoint: " + response);
+                m_flowinityErrorMessage->setStyleSheet("color: lime");
+                AbstractLogger::info() << "Flowinity auto-discovery status: OK";
+            });
+    connect(m_endpoints,
+            &EndpointsJSON::error,
+            this,
+            [this](const QString& error) {
+                m_flowinityErrorMessage->setText("Flowinity auto-discovery status: " + error);
+                m_flowinityErrorMessage->setStyleSheet("color: red");
+                AbstractLogger::error() << "Flowinity auto-discovery status: " << error;
+            });
+    m_endpoints->getAPIEndpoint(true);
 }
 
 void GeneralConf::initCustomEnv() {
