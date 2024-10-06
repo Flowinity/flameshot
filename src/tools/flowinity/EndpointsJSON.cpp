@@ -29,7 +29,6 @@ void EndpointsJSON::getAPIFromEndpoints(bool refresh)
 
     const QString tpuUrl = ConfigHandler().serverTPU();
     const QString endpointPrimary = tpuUrl + "/endpoints.json";
-    const QString endpointFallback = tpuUrl + "/endpoints.local.json";
 
     QNetworkRequest requestPrimary;
     requestPrimary.setUrl(QUrl(endpointPrimary));
@@ -38,30 +37,13 @@ void EndpointsJSON::getAPIFromEndpoints(bool refresh)
 
     QNetworkReply* replyPrimary = m_NetworkAM->get(requestPrimary);
 
-    connect(replyPrimary, &QNetworkReply::finished, this, [this, replyPrimary, endpointFallback]() {
+    connect(replyPrimary, &QNetworkReply::finished, this, [this, replyPrimary]() {
         AbstractLogger::info() << "Primary endpoint request finished";
         if (replyPrimary->error() == QNetworkReply::NoError) {
             handleAPIEndpointResponse(replyPrimary);
         } else {
             AbstractLogger::error() << "Primary endpoint request failed: " << replyPrimary->errorString();
-
-            QNetworkRequest requestFallback;
-            requestFallback.setUrl(QUrl(endpointFallback));
-            requestFallback.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-            AbstractLogger::info() << "Requesting URL: " << endpointFallback;
-
-            QNetworkReply* replyFallback = m_NetworkAM->get(requestFallback);
-
-            connect(replyFallback, &QNetworkReply::finished, this, [this, replyFallback]() {
-                AbstractLogger::info() << "Fallback endpoint request finished";
-                if (replyFallback->error() == QNetworkReply::NoError) {
-                    handleAPIEndpointResponse(replyFallback);
-                } else {
-                    AbstractLogger::error() << "Fallback endpoint request failed: " << replyFallback->errorString();
-                    emit error(replyFallback->errorString());
-                }
-                replyFallback->deleteLater();
-            });
+            emit error(replyPrimary->errorString());
         }
         replyPrimary->deleteLater();
     });
