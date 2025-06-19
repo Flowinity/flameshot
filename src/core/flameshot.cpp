@@ -4,7 +4,7 @@
 #include "flameshot.h"
 #include "flameshotdaemon.h"
 #if defined(Q_OS_MACOS)
-#include "external/QHotkey/QHotkey"
+#include "qhotkey.h"
 #endif
 
 #include "abstractlogger.h"
@@ -23,11 +23,12 @@
 #include <QApplication>
 #include <QBuffer>
 #include <QDebug>
-#include <QDesktopWidget>
+#include <QDesktopServices>
 #include <QFile>
 #include <QMessageBox>
 #include <QThread>
 #include <QTimer>
+#include <QUrl>
 #include <QVersionNumber>
 #include <QNetworkReply>
 
@@ -51,7 +52,7 @@ Flameshot::Flameshot()
     // permissions on the first run. Otherwise it will be hidden under the
     // CaptureWidget
     QScreen* currentScreen = QGuiAppCurrentScreen().currentScreen();
-    currentScreen->grabWindow(QApplication::desktop()->winId(), 0, 0, 1, 1);
+    currentScreen->grabWindow(0, 0, 0, 1, 1);
 
     // set global shortcuts for MacOS
     m_HotkeyScreenshotCapture = new QHotkey(
@@ -263,6 +264,14 @@ void Flameshot::history()
 #endif
 }
 
+void Flameshot::openSavePath()
+{
+    QString savePath = ConfigHandler().savePath();
+    if (!savePath.isEmpty()) {
+        QDesktopServices::openUrl(QUrl::fromLocalFile(savePath));
+    }
+}
+
 QVersionNumber Flameshot::getVersion()
 {
     return QVersionNumber::fromString(
@@ -361,8 +370,6 @@ void Flameshot::exportCapture(const QPixmap& capture,
     QString path = req.path();
 
     if (tasks & CR::PRINT_GEOMETRY) {
-        QByteArray byteArray;
-        QBuffer buffer(&byteArray);
         QTextStream(stdout)
           << selection.width() << "x" << selection.height() << "+"
           << selection.x() << "+" << selection.y() << "\n";
@@ -422,7 +429,7 @@ void Flameshot::exportCapture(const QPixmap& capture,
         CR::ExportTask tasks = tasks;
         widget->showPreUploadDialog(openWindowCount);
         QObject::connect(
-          widget, &ImgUploaderBase::uploadOk, [=](const QUrl& url) {
+          widget, &ImgUploaderBase::uploadOk, [=, this](const QUrl& url) {
               if (ConfigHandler().copyURLAfterUpload()) {
                   if (!(tasks & CR::COPY)) {
                       FlameshotDaemon::copyToClipboard(url.toString(),

@@ -13,8 +13,7 @@ class ConfigWindow;
 class InfoWindow;
 class CaptureLauncher;
 class UploadHistory;
-#if (defined(Q_OS_MAC) || defined(Q_OS_MAC64) || defined(Q_OS_MACOS) ||        \
-     defined(Q_OS_MACX))
+#if (defined(Q_OS_MAC) || defined(Q_OS_MACOS))
 class QHotkey;
 #endif
 
@@ -42,6 +41,8 @@ public slots:
 
     void info();
     void history();
+
+    void openSavePath();
 
     QVersionNumber getVersion();
 
@@ -74,8 +75,7 @@ private:
     QPointer<CaptureLauncher> m_launcherWindow;
     QPointer<ConfigWindow> m_configWindow;
 
-#if (defined(Q_OS_MAC) || defined(Q_OS_MAC64) || defined(Q_OS_MACOS) ||        \
-     defined(Q_OS_MACX))
+#if (defined(Q_OS_MAC) || defined(Q_OS_MACOS))
     QHotkey* m_HotkeyScreenshotCapture;
     QHotkey* m_HotkeyScreenshotHistory;
 #endif
