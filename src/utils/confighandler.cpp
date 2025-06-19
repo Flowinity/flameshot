@@ -150,16 +150,13 @@ static QMap<class QString, QSharedPointer<ValueHandler>>
     OPTION("showSelectionGeometryHideTime", LowerBoundedInt       (0, 3000)),
     OPTION("jpegQuality", BoundedInt     (0,100,75)),
     OPTION("platform", String            ( "default"            )),
+    // New in Flameshot (2025)
+    OPTION("reverseArrow"                ,Bool               ( false         )),
 
     // Endpoints
     OPTION("serverEndpoints", String("https://flowinity.com/endpoints.json")),
     OPTION("serverAPIEndpoint", String("https://api.flowinity.com/v3")),
-    OPTION("serverSupportsEndpoints", Bool(true))
-    OPTION("uploadClientSecret"          ,String             ( "313baf0c7b4d3ff" )),
-    OPTION("showSelectionGeometry"       , BoundedInt        ( 0, 5, 4       )),
-    OPTION("showSelectionGeometryHideTime", LowerBoundedInt  ( 0, 3000       )),
-    OPTION("jpegQuality"                 , BoundedInt        ( 0,100,75      )),
-    OPTION("reverseArrow"                ,Bool               ( false         )),
+    OPTION("serverSupportsEndpoints", Bool(true)),
 };
 
 static QMap<QString, QSharedPointer<KeySequence>> recognizedShortcuts = {
@@ -181,6 +178,7 @@ static QMap<QString, QSharedPointer<KeySequence>> recognizedShortcuts = {
     SHORTCUT("TYPE_IMAGEUPLOADER"       ,                           ),
 #if !defined(Q_OS_MACOS)
     SHORTCUT("TYPE_OPEN_APP"            ,   "Ctrl+O"                ),
+#endif
     SHORTCUT("TYPE_PIXELATE"            ,   "B"                     ),
     SHORTCUT("TYPE_INVERT"              ,   "I"                     ),
     SHORTCUT("TYPE_REDO"                ,   "Ctrl+Shift+Z"          ),

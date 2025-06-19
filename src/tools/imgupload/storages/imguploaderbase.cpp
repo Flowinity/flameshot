@@ -107,7 +107,7 @@ void ImgUploaderBase::usePrimaryScreen() {
 }
 
 // Handle pause/start of timer when hovering over the Qt widget
-void ImgUploaderBase::enterEvent(QEvent *event) {
+void ImgUploaderBase::enterEvent(QEnterEvent *event) {
     if ((m_closeTimer != nullptr) && m_closeTimer->isActive() && m_hasUploaded) {
         m_remainingTimeOnPause = m_closeTimer->remainingTime();
         m_closeTimer->stop();

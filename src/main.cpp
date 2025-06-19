@@ -130,10 +130,6 @@ int main(int argc, char* argv[])
     qputenv("FLAMESHOT_INIT_TIME", QByteArray::number(QDateTime::currentMSecsSinceEpoch()));
 #endif
     
-#ifdef Q_OS_LINUX
-    wayland_hacks();
-#endif
-
     // We need to init QSettings but the Qt application is not yet created
     // so we need to do it manually
     QSettings settings = QSettings(QSettings::IniFormat,
@@ -146,10 +142,6 @@ int main(int argc, char* argv[])
         AbstractLogger::info() << "Setting QT_QPA_PLATFORM to " + platform;
         qputenv("QT_QPA_PLATFORM", platform.toUtf8());
     }
-
-    // required for the button serialization
-    // TODO: change to QVector in v1.0
-    qRegisterMetaTypeStreamOperators<QList<int>>("QList<int>");
 
     QCoreApplication::setApplicationVersion(APP_VERSION);
     QCoreApplication::setApplicationName(QStringLiteral("flameshot"));
